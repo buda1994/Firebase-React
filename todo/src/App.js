@@ -8,7 +8,18 @@ import fire from './fire.js';
 //   // <button onClick={props.deleteTODO(props.id )} type="submit">X</button>
 // }
 
+const CheckBox = (props) =>{
+
+
+  return(
+    <input type="checkBox"/>
+
+  )
+  
+}
+
 const TODOl = (props) =>{
+
 
   return(
     <div style={{margin: '1em'}}>
@@ -17,10 +28,17 @@ const TODOl = (props) =>{
 
       <form>
       
-        <input type="checkBox"/>
+        {/* <input type="checkBox"/> */}
+        {/* <CheckBox /> */}
+
+        {/* {props.todos.map(todos => <CheckBox key={todos.id}{...todos} />)} */}
+
+        <CheckBox todos={this.props} />
+
         <div style={{display: 'inline-block', marginLeft: 10}}>
           <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
             {props.text}
+            {props.id}
           </div>
          
         </div>
@@ -36,9 +54,10 @@ const TODOl = (props) =>{
 };
 
 const TODOList = (props) => {
+
   return (
     <div className="text-center">
-      {props.todos.map(todos => <TODOl key={todos.id}{...todos} />)}
+      {props.todos.map(todos => <TODOl key={todos.id}  {...todos} />)}
       {/* {props.todos.map(todos => <TODOl key={todos.id}{...todos} />)} */}
     </div>
   );
@@ -82,41 +101,14 @@ class FORM extends React.Component{
         id: snapshot.key 
       };
 
-      // let message = { 
-      //   text: snapshot.val(), 
-      //   status: snapshot.val(),
-      //   id: snapshot.key 
-      // };
-
-      console.log("-------------------");
-      console.log(snapshot.val());
-      console.log("-------------------");
       console.log(message);
+
+      // console.log("-------------------");
+      // console.log(snapshot.val());
+      // console.log("-------------------");
+      // console.log(message);
       this.setState({ messages: [message].concat(this.state.messages) });
     })
-
-///////////////////////////////////////////////////////////////////////////////////////
-
-    // let arcRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-    // arcRef.on('value', snap => {
-    //   console.log("-------------------");
-    //   console.log(snap.val());
-    //   console.log("-------------------");
-    //   console.log('Arc: ', Object.values(snap.val()));
-    // });
-
-
-
-    // arcRef.on('value', snap =>  {
-    //   var data = [];
-    //   snap.forEach(ss => {
-    //      data.push(ss.child('text').val());
-    //   });
-    //   console.log(data);
-    // });
-
- ///////////////////////////////////////////////////////////////////////////////////////
-
   }
 
 
@@ -136,7 +128,7 @@ class FORM extends React.Component{
     // fire.database().ref('messages').push( this.state.todov );
 
     fire.database().ref('todos').push( {
-      status: 0,
+      status: false,
       text: this.state.todov
     });
 
@@ -145,6 +137,9 @@ class FORM extends React.Component{
   }
 
   render() {
+    
+    // console.log(this.state.messages);
+
     return (
       <div className="App">
         <header className="App-header">
