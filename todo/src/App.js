@@ -26,7 +26,7 @@ const TODOl = (props) =>{
         </div>
         {/* <button onMouseDown={deleteTODO(props.id)}>X</button> */}
 
-        {/* <button onClick={deleteTODO(props.id )} type="submit">X</button> */}
+        <button onClick={deleteTODO(props.id )} type="submit">X</button>
         
         {/* <Button  arc/>  */}
 
