@@ -16,19 +16,18 @@ const TODOl = (props) =>{
       
 
       <form>
-      {/* <form onSubmit={deleteTODO(props.id)}> */}
+      
         <input type="checkBox"/>
         <div style={{display: 'inline-block', marginLeft: 10}}>
           <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
             {props.text}
           </div>
-          {/* <div>{props.id}</div> */}
+         
         </div>
-        {/* <button onMouseDown={deleteTODO(props.id)}>X</button> */}
-
-        <button onClick={deleteTODO(props.id )} type="submit">X</button>
         
-        {/* <Button  arc/>  */}
+
+        <button type0="button" onClick={() => deleteTODO(props.id)} > X </button>
+        
 
       </form>
 
@@ -47,7 +46,7 @@ const TODOList = (props) => {
 
 const deleteTODO = (itemId) => {
   console.log(itemId);
-  var itemsRef = fire.database().ref('messages');
+  var itemsRef = fire.database().ref('todos');
   itemsRef.child(itemId).remove(function(error) {
     if (error) {
       console.log(error);
@@ -55,51 +54,95 @@ const deleteTODO = (itemId) => {
   });
 }
 
-// const showTODO = () => {
-//   let messagesRef = fire.database().ref('messages').orderByKey().limitToLast(100);
-//   messagesRef.on('child_added', snapshot => {
-//     /* Update React state when message is added at Firebase Database */
-//     let message = { text: snapshot.val(), id: snapshot.key };
-//     this.setState({ messages: [message].concat(this.state.messages) });
-
-//   })
+// const deleteTODO = (itemId) => {
+//   console.log(itemId);
+//   var itemsRef = fire.database().ref('messages');
+//   itemsRef.child(itemId).remove(function(error) {
+//     if (error) {
+//       console.log(error);
+//     }
+//   });
 // }
 
 class FORM extends React.Component{
   state = { 
     todov: '',
-    messages: [] 
+    messages: [],
   }
 
   componentWillMount(){
     /* Create reference to messages in Firebase Database */
-    let messagesRef = fire.database().ref('messages').orderByKey().limitToLast(100);
+    let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
 
     messagesRef.on('child_added', snapshot => {
       /* Update React state when message is added at Firebase Database */
-      let message = { text: snapshot.val(), id: snapshot.key };
+      let message = { 
+        text: Object.values(snapshot.child('text').val()), 
+        status: Object.values(snapshot.child('status').val()),
+        id: snapshot.key 
+      };
+
+      // let message = { 
+      //   text: snapshot.val(), 
+      //   status: snapshot.val(),
+      //   id: snapshot.key 
+      // };
+
+      console.log("-------------------");
+      console.log(snapshot.val());
+      console.log("-------------------");
+      console.log(message);
       this.setState({ messages: [message].concat(this.state.messages) });
-  
     })
 
+///////////////////////////////////////////////////////////////////////////////////////
+
+    // let arcRef = fire.database().ref('todos').orderByKey().limitToLast(100);
+    // arcRef.on('value', snap => {
+    //   console.log("-------------------");
+    //   console.log(snap.val());
+    //   console.log("-------------------");
+    //   console.log('Arc: ', Object.values(snap.val()));
+    // });
+
+
+
+    // arcRef.on('value', snap =>  {
+    //   var data = [];
+    //   snap.forEach(ss => {
+    //      data.push(ss.child('text').val());
+    //   });
+    //   console.log(data);
+    // });
+
+ ///////////////////////////////////////////////////////////////////////////////////////
+
   }
 
-  saveTODO = (event) => {
-    event.preventDefault();
-    fire.database().ref('messages').push( this.state.todov );
 
-    // this.showTODO();
-    // this.render();
-  }
-
-  // showTODO = () => {
+  // componentWillMount(){
+  //   /* Create reference to messages in Firebase Database */
   //   let messagesRef = fire.database().ref('messages').orderByKey().limitToLast(100);
+
   //   messagesRef.on('child_added', snapshot => {
   //     /* Update React state when message is added at Firebase Database */
   //     let message = { text: snapshot.val(), id: snapshot.key };
   //     this.setState({ messages: [message].concat(this.state.messages) });
   //   })
   // }
+
+  saveTODO = (event) => {
+    event.preventDefault();
+    // fire.database().ref('messages').push( this.state.todov );
+
+    fire.database().ref('todos').push( {
+      status: 0,
+      text: this.state.todov
+    });
+
+    this.render();
+
+  }
 
   render() {
     return (
