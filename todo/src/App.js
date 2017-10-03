@@ -28,7 +28,6 @@ class FORM extends React.Component{
   };
 
   
-
   TODOl = (props) =>{
     // console.log(props);
     return(
@@ -83,7 +82,8 @@ class FORM extends React.Component{
     if(status==="true"){
       // console.log("Zimmer");
       return(
-        <input type="checkBox" checked />
+        <input onClick={(event) => this.modifyTODO(props, status, event)} type="checkBox" defaultChecked/>
+        // <input type="checkBox" checked />
       )
     } 
   }
@@ -92,11 +92,25 @@ class FORM extends React.Component{
   modifyTODO = (props, status, event) =>{
     event.preventDefault();
 
-    console.log("Lok'tar ogar");
-    
-    var itemsRef = fire.database().ref('todos');
+    if (status==="false"){
+      console.log("kalimdor false");
+      status="true";
+    }
+    else if (status==="true"){
+      console.log("azeroth true");
+      status="false";
+    }
 
-    itemsRef.child(props.id).update(status);
+    var itemsRef = fire.database().ref('todos');
+    var textA = props.todos.text.join().split(',').join('')
+
+    itemsRef.child(props.todos.id).update({
+      status: status,
+      text: textA
+    } );
+
+    var array = this.state.messages;
+    this.setState({messages: array });
 
     
   }
