@@ -18,8 +18,22 @@ const CheckBox = (props) =>{
   )
 }
 
+const BottomBar = (props) =>{
+  return(
+    // <input type="checkBox"/>
+    <div style={{margin: '1em'}}>
+      <form>
+        <h2>Text</h2>
+        <button > X </button>
+        <button > X </button>
+        <button > X </button>
+      </form>
+    </div>
+  );
+};
+
 const TODOl = (props) =>{
-  console.log(props);
+  // console.log(props);
   return(
     <div style={{margin: '1em'}}>
 
@@ -34,21 +48,11 @@ const TODOl = (props) =>{
         <div style={{display: 'inline-block', marginLeft: 10}}>
           <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
             {props.text}
-            {/* {props.id} */}
           </div>
-         
         </div>
         
-
-        <button type0="button" onChange={(event)=>this.setState(this.state)} onClick={(evt) => deleteTODO(props.id, evt)} > X </button>
-        {/* <button type0="button" onClick={() => deleteTODO(props.id)} > X </button> */}
-
-        {/* <button 
-          onChange={(event)=>this.setState({itemId: props.id})}
-          onClick={this.deleteTODO}>X
-        </button> */}
-
-
+        <button onClick={(event) => deleteTODO(props.id, event)} > X </button>
+        
         {/* <form onSubmit={this.saveTODO}>
           <input type="text" 
             value={this.state.userName}
@@ -62,11 +66,13 @@ const TODOl = (props) =>{
 };
 
 const TODOList = (props) => {
+
+  
   // console.log(props);
   return (
     <div className="text-center">
-      {props.todos.map(todos => <TODOl key={todos.id}  {...todos} />)}
-      {/* {props.todos.map(todos => <TODOl key={todos.id}{...todos} />)} */}
+      {props.todos.map(todos => <TODOl key={todos.id} {...todos} />)}
+      {/* {props.todos.map(todos => <TODOl key={todos.id} {...todos} />)} */}
     </div>
   );
 };
@@ -97,101 +103,81 @@ const deleteTODO = (itemId, event) => {
       console.log(error);
     }
   });
+  
+  arc();
 }
-
 
 const arc = () =>{
-  
-}
 
-// const deleteTODO = (itemId) => {
-//   event.preventDefault();
-//   console.log(itemId);
-//   var itemsRef = fire.database().ref('todos');
-//   itemsRef.child(itemId).remove(function(error) {
-//     if (error) {
-//       console.log(error);
-//     }
-//   });
-// }
+  // this.setState({ messages: [] });
+  // console.log("sdasd");
+  // console.log(this.state.messages);
+  // console.log("sdasd");
+
+  let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
+  
+      messagesRef.on('child_added', snapshot => {
+        /* Update React state when message is added at Firebase Database */
+        let message = { 
+          text: Object.values(snapshot.child('text').val()), 
+          status: Object.values(snapshot.child('status').val()),
+          id: snapshot.key 
+        };
+
+        // this.setState({ messages: [message].concat(this.state.messages) });
+      })
+    
+}
 
 class FORM extends React.Component{
   state = { 
     todov: '',
-    // messages: [],
+    messages: []
   }
-
-  // componentWillMount(){
-  //   /* Create reference to messages in Firebase Database */
-  //   let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-
-  //   messagesRef.on('child_added', snapshot => {
-  //     /* Update React state when message is added at Firebase Database */
-  //     let message = { 
-  //       text: Object.values(snapshot.child('text').val()), 
-  //       status: Object.values(snapshot.child('status').val()),
-  //       id: snapshot.key 
-  //     };
-
-  //     // var itemsRef = fire.database().ref('todos');
-  //     // itemsRef.child(itemId).remove(function(error) {
-  //     //   if (error) {
-  //     //     console.log(error);
-  //     //   }
-  //     // });
-
-  //     // console.log("-------------------------------------------");
-  //     // text: Object.values(snapshot.child('text').val()), 
-  //     // console.log("-------------------------------------------");
-  //     // console.log(message);
-
-  //     // console.log("-------------------");
-  //     // console.log(snapshot.val());
-  //     // console.log("-------------------");
-  //     // console.log(message);
-  //     this.setState({ messages: [message].concat(this.state.messages) });
-  //   })
-  // }
-
-
-  // componentWillMount(){
-  //   /* Create reference to messages in Firebase Database */
-  //   let messagesRef = fire.database().ref('messages').orderByKey().limitToLast(100);
-
-  //   messagesRef.on('child_added', snapshot => {
-  //     /* Update React state when message is added at Firebase Database */
-  //     let message = { text: snapshot.val(), id: snapshot.key };
-  //     this.setState({ messages: [message].concat(this.state.messages) });
-  //   })
-  // }
-
-  // deleteTODO = (itemId, event) => {
-    
-  //   event.preventDefault();
-      
-  //   // console.log(itemId);
-  //   var itemsRef = fire.database().ref('todos');
-  //   itemsRef.child(itemId).remove(function(error) {
-  //     if (error) {
-  //       console.log(error);
-  //     }
-  //   });
-  // }
 
   saveTODO = (event) => {
     event.preventDefault();
     // fire.database().ref('messages').push( this.state.todov );
 
+    this.setState({ messages: [] });
+
+    console.log(this.state.messages);
+
     fire.database().ref('todos').push( {
       status: false,
       text: this.state.todov
     });
-
-    
-    // this.render();
-
   }
 
+  componentWillMount(){
+    
+    // this.setState({ messages: [] });
+    // console.log("componentwillmount");
+    
+    let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
+    
+    messagesRef.on('child_added', snapshot => {
+      /* Update React state when message is added at Firebase Database */
+      let message = { 
+        text: Object.values(snapshot.child('text').val()), 
+        status: Object.values(snapshot.child('status').val()),
+        id: snapshot.key 
+      };
+    
+      // var itemsRef = fire.database().ref('todos');
+      // itemsRef.child(itemId).remove(function(error) {
+      //   if (error) {
+      //     console.log(error);
+      //   }
+      // });
+    
+      this.setState({ messages: [message].concat(this.state.messages) });
+    })
+        
+  }
+
+
+      
   render() {
     return (
       <div className="App">
@@ -202,12 +188,12 @@ class FORM extends React.Component{
 
         <form onSubmit={this.saveTODO}>
           <input type="text" 
-            value={this.state.userName}
             onChange={(event)=>this.setState({todov: event.target.value})}
             placeholder="Arc" required/>
         </form> 
           
-        {/* <TODOList todos={this.state.messages} /> */}
+        <TODOList todos={this.state.messages} />
+        <BottomBar />
 
       </div>
     );
@@ -218,54 +204,15 @@ class FORM extends React.Component{
 class App extends React.Component {
   state = { 
     // todov: '',
-    messages: []
+    // messages: []
   }
 
-////////////////////////////////////////////
-
-  deleteTODO = (itemId, event) => {
-    
-    event.preventDefault();
-      
-      // console.log(itemId);
-    var itemsRef = fire.database().ref('todos');
-    itemsRef.child(itemId).remove(function(error) {
-      if (error) {
-        console.log(error);
-      }
-    });
-  }
-
-////////////////////////////////////////////
-
-  componentWillMount(){
-    /* Create reference to messages in Firebase Database */
-    let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-
-    messagesRef.on('child_added', snapshot => {
-      /* Update React state when message is added at Firebase Database */
-      let message = { 
-        text: Object.values(snapshot.child('text').val()), 
-        status: Object.values(snapshot.child('status').val()),
-        id: snapshot.key 
-      };
-
-      // var itemsRef = fire.database().ref('todos');
-      // itemsRef.child(itemId).remove(function(error) {
-      //   if (error) {
-      //     console.log(error);
-      //   }
-      // });
-
-      this.setState({ messages: [message].concat(this.state.messages) });
-    })
-  }
 
   render() {
     return (
       <div>
         <FORM />
-        <TODOList todos={this.state.messages} />
+        {/* <TODOList todos={this.state.messages} /> */}
       </div>
     );
   }
