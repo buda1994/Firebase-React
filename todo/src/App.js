@@ -3,45 +3,40 @@ import './App.css';
 import fire from './fire.js';
 
 
-
-// const BottomBar = (props) =>{
-//   return(
-//     // <input type="checkBox"/>
-//     <div style={{margin: '1em'}}>
-//       <form>
-//         {/* <h2>Text</h2> */}
-//         <button > X </button>
-//         <button > X </button>
-//         <button > X </button>
-//       </form>
-//     </div>
-//   );
-// };
-
 class FORM extends React.Component{
   state = { 
     todov: '',
     messages: [],
   }
 
-  CheckBox = (props) =>{
+  BottomBar = (props) =>{
+
+    console.log(props.todos);
+    
     return(
-      <input type="checkBox"/>
-    )
-  }
+      // <input type="checkBox"/>
+      <div style={{margin: '1em'}}>
+        <form>
+          {/* <h2>Text</h2> */}
+          <button > X </button>
+          <button > R </button>
+          <button > X </button>
+        </form>
+      </div>
+    );
+
+  };
+
+  
 
   TODOl = (props) =>{
     // console.log(props);
     return(
       <div style={{margin: '1em'}}>
-  
         <form>
-  
-          {/* {props.todos.map(todos => <CheckBox key={todos.id}{...todos} />)} */}
-          <this.CheckBox todos={this.props} />
-  
-          {/* <this.Checkbox todos={this.state.messages} /> */}
 
+          <this.CheckBox todos={props} />
+  
           <div style={{display: 'inline-block', marginLeft: 10}}>
             <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
               {props.text}
@@ -65,6 +60,46 @@ class FORM extends React.Component{
       </div>
     );
   };
+
+
+  CheckBox = (props) =>{
+    
+    // console.log(props.todos.status)
+    // var status = props.todos.status.join();
+    // console.log(status)
+    
+    var status = props.todos.status.join().split(',').join('')
+    // console.log(status);
+    
+    if(status==="false"){
+      // console.log("Zimmer");
+      return(
+        <input onClick={(event) => this.modifyTODO(props, status, event)} type="checkBox" />
+        // <input type="checkBox"/>
+        // <button onClick={(event) => this.deleteTODO( props , event)} > X </button>
+      )
+    }
+    
+    if(status==="true"){
+      // console.log("Zimmer");
+      return(
+        <input type="checkBox" checked />
+      )
+    } 
+  }
+
+
+  modifyTODO = (props, status, event) =>{
+    event.preventDefault();
+
+    console.log("Lok'tar ogar");
+    
+    var itemsRef = fire.database().ref('todos');
+
+    itemsRef.child(props.id).update(status);
+
+    
+  }
 
   deleteTODO = (itemId, event) => {
     event.preventDefault();
@@ -90,7 +125,7 @@ class FORM extends React.Component{
     event.preventDefault();
 
     fire.database().ref('todos').push( {
-      status: false,
+      status: "false",
       text: this.state.todov
     });
 
@@ -106,15 +141,6 @@ class FORM extends React.Component{
         status: Object.values(snapshot.child('status').val()),
         id: snapshot.key 
       };
-    
-      // var itemsRef = fire.database().ref('todos');
-      // itemsRef.child(itemId).remove(function(error) {
-      //   if (error) {
-      //     console.log(error);
-      //   }
-      // });
-    
-      console.log("hdfhd");
 
       this.setState({ messages: [message].concat(this.state.messages) });
     })
@@ -133,11 +159,12 @@ class FORM extends React.Component{
         <form onSubmit={this.saveTODO}>
           <input type="text" 
             onChange={(event)=>this.setState({todov: event.target.value})}
-            placeholder="Arc" required/>
+            placeholder="Arc" 
+            id="txtb" required/>
         </form> 
           
         <this.TODOList todos={this.state.messages} />
-        {/* <BottomBar /> */}
+        {/* <this.BottomBar todos={this.state.messages}/> */}
 
       </div>
     );
