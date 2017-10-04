@@ -29,7 +29,6 @@ class FORM extends React.Component{
 
   
   TODOl = (props) =>{
-    // console.log(props);
     return(
       <div style={{margin: '1em'}}>
         <form>
@@ -42,8 +41,7 @@ class FORM extends React.Component{
             </div>
           </div>
           
-          <button onClick={(event) => this.deleteTODO( props , event)} > X </button>
-          {/* <button onClick={(event) => this.deleteTODO(props.id, event)} > X </button> */}
+          <button className="buttonX" onClick={(event) => this.deleteTODO( props , event)} > X </button>
           
         </form>
       </div>
@@ -51,10 +49,8 @@ class FORM extends React.Component{
   };
   
   TODOList = (props) => {
-    // console.log(props);
     return (
       <div className="text-center">
-        {/* {props.todos.map(todos => <this.TODOl key={todos} {...todos} />)} */}
         {props.todos.map(todos => <this.TODOl key={todos.id} {...todos} />)}
       </div>
     );
@@ -63,41 +59,35 @@ class FORM extends React.Component{
 
   CheckBox = (props) =>{
     
-    // console.log(props.todos.status)
-    // var status = props.todos.status.join();
-    // console.log(status)
-    
-    var status = props.todos.status.join().split(',').join('')
-    // console.log(status);
+    var status;
+
+    if(props.todos.status.constructor === Array){
+      status = props.todos.status.join().split(',').join('')
+    }
+    else{
+      status = props.todos.status
+    }
     
     if(status==="false"){
-      // console.log("Zimmer");
       return(
-        <input onClick={(event) => this.modifyTODO(props, status, event)} type="checkBox" />
-        // <input type="checkBox"/>
-        // <button onClick={(event) => this.deleteTODO( props , event)} > X </button>
+        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, status, event)} type="checkBox" />
       )
     }
     
     if(status==="true"){
-      // console.log("Zimmer");
       return(
-        <input onClick={(event) => this.modifyTODO(props, status, event)} type="checkBox" defaultChecked/>
-        // <input type="checkBox" checked />
+        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, status, event)} type="checkBox" defaultChecked/>
       )
     } 
   }
 
 
   modifyTODO = (props, status, event) =>{
-    event.preventDefault();
-
+    
     if (status==="false"){
-      console.log("kalimdor false");
       status="true";
     }
     else if (status==="true"){
-      console.log("azeroth true");
       status="false";
     }
 
@@ -109,9 +99,13 @@ class FORM extends React.Component{
       text: textA
     } );
 
-    var array = this.state.messages;
-    this.setState({messages: array });
-
+    var arraym = this.state.messages;
+    for(var i=0;i<this.state.messages.length;i++){
+      if(this.state.messages[i].id===props.todos.id){
+        arraym[i].status=status;
+        this.setState({messages: arraym });
+      }
+    }
     
   }
 
@@ -149,7 +143,6 @@ class FORM extends React.Component{
     let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
     
     messagesRef.on('child_added', snapshot => {
-      /* Update React state when message is added at Firebase Database */
       let message = { 
         text: Object.values(snapshot.child('text').val()), 
         status: Object.values(snapshot.child('status').val()),

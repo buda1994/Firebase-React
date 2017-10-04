@@ -25,3 +25,13 @@
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
+
+.ChackboxA{
+  width: 30px;
+  height: 30px;
+}
+
+.buttonX{
+  width: 30px;
+  height: 30px;
+}
