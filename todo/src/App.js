@@ -99,7 +99,8 @@ class FORM extends React.Component{
             <span>{count} items left</span>
             <button onClick={(event) => this.selectTODO(props, "All", event)} > All </button>
             <button onClick={(event) => this.selectTODO(props, "Act", event)} > Active </button>
-            <button onClick={(event) => this.selectTODO(props, "Com", event)} > Complete </button>
+            <button onClick={(event) => this.selectTODO(props, "Com", event)} > Completed </button>
+            <button onClick={(event) => this.selectTODO(props, "Clc", event)} > Clear Completed </button>
           </form>
         </div>
       );
@@ -148,9 +149,55 @@ class FORM extends React.Component{
       this.rendersTODO(props, "false","true");
       this.state.stat = "Com";
     }
+    else if(act==="Clc"){
+      // console.log("Clc")
 
+      var array = this.state.messages;
+      
+      for(i=0;i<this.state.messages.length;i++){
+        console.log(this.state.messages.length);
+        if(this.state.messages[i].status==="true")
+        {
+          itemsRef.child(this.state.messages[i].id).remove(function(error) {
+            if (error) {
+              console.log(error);
+            }
+          });
+        }
+      }
+
+      for(i=this.state.messages.length-1;i>= 0;i--){
+        if(this.state.messages[i].status==="true"){
+          array.splice(i, 1);
+          console.log("Azeroth");
+        }
+
+      }
+
+      this.setState({messages: array });
+
+    }
   }
 
+  deleteTODO = (itemId, event) => {
+    event.preventDefault();
+
+    var itemsRef = fire.database().ref('todos');
+    itemsRef.child(itemId.id).remove(function(error) {
+      if (error) {
+        console.log(error);
+      }
+    });
+
+    var array = this.state.messages;
+    for(var i=0;i<this.state.messages.length;i++){
+      if(this.state.messages[i].id===itemId.id){
+        array.splice(i, 1);
+        this.setState({messages: array });
+      }
+    }
+
+  }
 
   rendersTODO = (props, rtrue, rfalse)=>{
 
@@ -225,25 +272,7 @@ class FORM extends React.Component{
     
   }
 
-  deleteTODO = (itemId, event) => {
-    event.preventDefault();
-    
-    var itemsRef = fire.database().ref('todos');
-    itemsRef.child(itemId.id).remove(function(error) {
-      if (error) {
-        console.log(error);
-      }
-    });
-
-    var array = this.state.messages;
-    for(var i=0;i<this.state.messages.length;i++){
-      if(this.state.messages[i].id===itemId.id){
-        array.splice(i, 1);
-        this.setState({messages: array });
-      }
-    }
-
-  }
+  
 
   saveTODO = (event) => {
     event.preventDefault();
