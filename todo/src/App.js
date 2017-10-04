@@ -7,45 +7,45 @@ class FORM extends React.Component{
   state = { 
     todov: '',
     messages: [],
+    stat: ""
   }
-
-  BottomBar = (props) =>{
-
-    console.log(props.todos);
-    
-    return(
-      // <input type="checkBox"/>
-      <div style={{margin: '1em'}}>
-        <form>
-          {/* <h2>Text</h2> */}
-          <button > X </button>
-          <button > R </button>
-          <button > X </button>
-        </form>
-      </div>
-    );
-
-  };
-
   
   TODOl = (props) =>{
-    return(
-      <div style={{margin: '1em'}}>
-        <form>
 
-          <this.CheckBox todos={props} />
-  
-          <div style={{display: 'inline-block', marginLeft: 10}}>
-            <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
-              {props.text}
+    if(props.render==="true"){
+
+      this.state.count = Number(this.state.count) + 1;
+      // console.log("count: ",this.state.count);
+      // console.log("stat: ",this.state.stat);
+
+      return(
+        <div style={{margin: '1em'}}>
+          <form>
+
+            <this.CheckBox todos={props} />
+    
+            <div style={{display: 'inline-block', marginLeft: 10}}>
+              <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
+                {props.text}
+              </div>
             </div>
-          </div>
-          
-          <button className="buttonX" onClick={(event) => this.deleteTODO( props , event)} > X </button>
-          
-        </form>
-      </div>
-    );
+            
+            <button className="buttonX" onClick={(event) => this.deleteTODO(props, event)} > X </button>
+            
+          </form>
+        </div>
+      );
+
+    }
+    else if(props.render==="false"){
+      // console.log("render false");
+      return(
+        <div style={{margin: '1em'}}>
+              
+        </div>
+      );
+    }
+
   };
   
   TODOList = (props) => {
@@ -56,47 +56,163 @@ class FORM extends React.Component{
     );
   };
 
-
   CheckBox = (props) =>{
-    
-    var status;
 
-    if(props.todos.status.constructor === Array){
-      status = props.todos.status.join().split(',').join('')
-    }
-    else{
-      status = props.todos.status
-    }
-    
-    if(status==="false"){
+    if(props.todos.status==="false"){
       return(
-        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, status, event)} type="checkBox" />
+        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, event)} type="checkBox" />
       )
     }
     
-    if(status==="true"){
+    if(props.todos.status==="true"){
       return(
-        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, status, event)} type="checkBox" defaultChecked/>
+        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, event)} type="checkBox" defaultChecked/>
       )
     } 
+
+  }
+
+  BottomBar = (props) =>{
+
+    var count=0;
+
+    for(var i=0;i<props.todos.length;i++){
+      if(props.todos[i].status==="false"){
+        count++;
+      }
+    }
+
+    if(props.todos.length===0){
+
+      return(
+        <div style={{margin: '1em'}}>
+              
+        </div>
+      );
+    
+    }
+    else{
+
+      return(
+        <div style={{margin: '1em'}}>
+          <form>
+            <span>{count} items left</span>
+            <button onClick={(event) => this.selectTODO(props, "All", event)} > All </button>
+            <button onClick={(event) => this.selectTODO(props, "Act", event)} > Active </button>
+            <button onClick={(event) => this.selectTODO(props, "Com", event)} > Complete </button>
+          </form>
+        </div>
+      );
+    
+    }
+  };
+
+  selectTODO = (props, act, event) => {
+    event.preventDefault();
+
+    var itemsRef = fire.database().ref('todos');
+    var arraym = this.state.messages;
+    // console.log(props.todos);
+    // console.log("sdasd ",props.todos[1].text);
+
+    if(act==="All"){
+      // console.log("All")
+
+      for(var i=0;i<this.state.messages.length;i++){
+        itemsRef.child(this.state.messages[i].id).update({
+          status: props.todos[i].status,
+          text: props.todos[i].text,
+          render: "true"
+        } );
+      }
+
+      for(i=0;i<this.state.messages.length;i++){
+        arraym[i].render="true";
+        this.setState({messages: arraym });
+      }
+
+      // console.log(props.todos);
+      this.state.stat = "All";
+
+    }
+    else if(act==="Act"){
+      // console.log("Act")
+
+      this.rendersTODO(props, "true","false");
+      this.state.stat = "Act";
+
+    }
+    else if(act==="Com"){
+      // console.log("Com")
+
+      this.rendersTODO(props, "false","true");
+      this.state.stat = "Com";
+    }
+
   }
 
 
-  modifyTODO = (props, status, event) =>{
+  rendersTODO = (props, rtrue, rfalse)=>{
+
+    var itemsRef = fire.database().ref('todos');
+    var arraym = this.state.messages;
+
+
+    ////  rtrue=true,    rfalse=false
+    for(var i=0;i<this.state.messages.length;i++){
+      
+      if(this.state.messages[i].status==="true")
+      {
+        itemsRef.child(this.state.messages[i].id).update({
+          status: props.todos[i].status,
+          text: props.todos[i].text,
+          render: rfalse
+        } );
+      }
+
+      else if(this.state.messages[i].status==="false")
+      {
+        itemsRef.child(this.state.messages[i].id).update({
+          status: props.todos[i].status,
+          text: props.todos[i].text,
+          render: rtrue
+        } );
+      }
+
+    }
+
+    for(i=0;i<this.state.messages.length;i++){
+
+      if(this.state.messages[i].status==="true")
+      {
+        arraym[i].render=rfalse;
+        this.setState({messages: arraym });
+      }
+      if(this.state.messages[i].status==="false")
+      {
+        arraym[i].render=rtrue;
+        this.setState({messages: arraym });
+      }
+    }
+
+  }
+
+  modifyTODO = (props, event) =>{
     
-    if (status==="false"){
+    var status;
+
+    if (props.todos.status==="false"){
       status="true";
     }
-    else if (status==="true"){
+    else if (props.todos.status==="true"){
       status="false";
     }
 
     var itemsRef = fire.database().ref('todos');
-    var textA = props.todos.text.join().split(',').join('')
 
     itemsRef.child(props.todos.id).update({
       status: status,
-      text: textA
+      text: props.todos.text
     } );
 
     var arraym = this.state.messages;
@@ -132,9 +248,18 @@ class FORM extends React.Component{
   saveTODO = (event) => {
     event.preventDefault();
 
+    var arc5=""
+    if(this.state.stat==="Com"){
+      arc5="false";
+    }
+    else{
+      arc5="true";
+    }
+
     fire.database().ref('todos').push( {
       status: "false",
-      text: this.state.todov
+      text: this.state.todov,
+      render: arc5,
     });
 
   }
@@ -143,16 +268,24 @@ class FORM extends React.Component{
     let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
     
     messagesRef.on('child_added', snapshot => {
+
+      var arc1 = Object.values(snapshot.child('status').val());
+      var arc2 = Object.values(snapshot.child('text').val());
+      var arc3 = Object.values(snapshot.child('render').val());
+      
+      var textS = arc1.join().split(',').join('')
+      var textT = arc2.join().split(',').join('')
+      var textR = arc3.join().split(',').join('')
+
       let message = { 
-        text: Object.values(snapshot.child('text').val()), 
-        status: Object.values(snapshot.child('status').val()),
+        text: textT,
+        status: textS,
+        render: textR,
         id: snapshot.key 
       };
 
       this.setState({ messages: [message].concat(this.state.messages) });
     })
-    // this.arc();
-        
   }
 
   render() {
@@ -169,9 +302,9 @@ class FORM extends React.Component{
             placeholder="Arc" 
             id="txtb" required/>
         </form> 
-          
+        
         <this.TODOList todos={this.state.messages} />
-        {/* <this.BottomBar todos={this.state.messages}/> */}
+        <this.BottomBar todos={this.state.messages}/>
 
       </div>
     );
