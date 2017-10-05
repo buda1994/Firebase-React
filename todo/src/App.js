@@ -159,7 +159,7 @@ class FORM extends Component{
     var arraym = this.state.messages;
 
     
-    console.log("current stat: ",this.state.stat)
+    // console.log("current stat: ",this.state.stat)
     // for(var i=0;i<this.state.messages.length;i++){
     //   // if(this.state.messages[i].id===props.todos.id){
     //     // arraym[i].status=sChecked;
@@ -240,15 +240,18 @@ class FORM extends Component{
     // }
 
     // this.selectTODO(props, "Act", event)
-    this.arc1(props, this.state.stat);
+    this.arc1(props, this.state.stat.statt);
 
   }
 
   arc1 = (props, act) =>{
     var itemsRef = fire.database().ref('todos');
     var arraym = this.state.messages;
+    let statm;
     // console.log(props.todos);
     // console.log("sdasd ",props.todos[1].text);
+
+    // console.log("prev stat State: ",this.state.stat);
 
     if(act==="All"){
       console.log("Button All")
@@ -261,19 +264,38 @@ class FORM extends Component{
         } );
       }
 
+      statm = { 
+        statt: "All",
+        id: this.state.stat.id
+      };
+
       for(i=0;i<this.state.messages.length;i++){
         arraym[i].render="true";
-        this.setState({messages: arraym, stat: "All" });
+        this.setState({messages: arraym, stat: statm });
       }
+
+
+      // let statm = { 
+      //   statt: textS,
+      //   id: snapshot.key 
+      // };
+      
+      // this.setState({ stat: statm });
+
+
+      // console.log("stat:",this.state.stat)
+      // this.modifyStat("All");
 
     }
     else if(act==="Act"){
       console.log("Button Act")
       this.rendersTODO(props, "true","false","Act");
+      // this.modifyStat("Act");
     }
     else if(act==="Com"){
       console.log("Button Com")
       this.rendersTODO(props, "false","true","Com");
+      // this.modifyStat("Com");
     }
     else if(act==="Clc"){
       // console.log("Clc")
@@ -391,7 +413,11 @@ class FORM extends Component{
     var arraym = this.state.messages;
 
 
-    ////  rtrue=true,    rfalse=false
+    let statm = { 
+      statt: stat,
+      id: this.state.stat.id
+    };
+
     for(var i=0;i<this.state.messages.length;i++){
       
       if(this.state.messages[i].status==="true")
@@ -419,16 +445,39 @@ class FORM extends Component{
       if(this.state.messages[i].status==="true")
       {
         arraym[i].render=rfalse;
-        this.setState({messages: arraym, stat: stat });
+        this.setState({messages: arraym, stat: statm });
       }
       if(this.state.messages[i].status==="false")
       {
         arraym[i].render=rtrue;
-        this.setState({messages: arraym, stat: stat });
+        this.setState({messages: arraym, stat: statm });
       }
     }
 
   }
+
+  // modifyStat = (arc) =>{
+  //   var itemsRef = fire.database().ref('stat');
+    
+  //   console.log("state.stat.id: ",this.state.stat.id)
+  //   console.log("arc: ",arc)
+    
+  //   // itemsRef.child(this.state.stat.id).update({
+  //   //   arc
+  //   // } );
+
+  //   itemsRef.child(this.state.stat.id).update({
+  //     arc: arc
+  //   } );
+
+  //   // messagesRef = fire.database().ref('stat');
+  //   // messagesRef.on('child_added', snapshot => {
+  //   //   var arc1 = snapshot.val();
+  //   //   console.log(arc1);
+  //   //   this.setState({ stat: arc1 });
+  //   // })
+
+  // }
 
   modifyTODO = (props, event) =>{
     
@@ -448,30 +497,47 @@ class FORM extends Component{
     }
 
     
+    console.log("idprops")
+    console.log(props.todos.id);
+    console.log(this.state.stat.statt);
+    console.log(status);
+    console.log(props.todos.text);
+    console.log(renderS);
 
-    if(this.state.stat==="All"){
+    // console.log(props)
+
+    if(this.state.stat.statt==="All"){
       renderS="true"
       console.log("All");
     }
-    else if (this.state.stat==="Act" && status==="false"){
+    else if (this.state.stat.statt==="Act" && status==="false"){
       renderS="true"
+      console.log("Act, false");
+      // this.arc1(props, "Act");
     }
-    else if (this.state.stat==="Act" && status==="true"){
+    else if (this.state.stat.statt==="Act" && status==="true"){
       renderS="false"
+      console.log("Act, true");
+      // this.arc1(props, "Act");
     }
-    else if (this.state.stat==="Com" && status==="false"){
+    else if (this.state.stat.statt==="Com" && status==="false"){
       renderS="false"
+      console.log("Com, false");
+      // this.arc1(props, "Com");
     }
-    else if (this.state.stat==="Com" && status==="true"){
+    else if (this.state.stat.statt==="Com" && status==="true"){
       renderS="true"
+      console.log("Com, true");
+      // this.arc1(props, "Com");
     }
 
-
+    
 
 
     var itemsRef = fire.database().ref('todos');
 
     itemsRef.child(props.todos.id).update({
+    // itemsRef.child("-Kvhf3Smxw2rt7w_SdtX").update({
       status: status,
       text: props.todos.text,
       render: renderS
@@ -481,9 +547,14 @@ class FORM extends Component{
     for(var i=0;i<this.state.messages.length;i++){
       if(this.state.messages[i].id===props.todos.id){
         arraym[i].status=status;
+        arraym[i].render=renderS;
         this.setState({messages: arraym });
       }
     }
+
+    // console.log("------------------")
+    // console.log(this.state.messages)
+    // console.log("------------------")
 
     // console.log("----------------")
     // console.log("state stat: ",this.state.stat);
@@ -510,11 +581,14 @@ class FORM extends Component{
       render: arc5,
     });
 
+
+
   }
 
   componentWillMount(){
     let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-    
+    let messagesRef2 = fire.database().ref('stat');
+
     messagesRef.on('child_added', snapshot => {
 
       var arc1 = Object.values(snapshot.child('status').val());
@@ -525,8 +599,6 @@ class FORM extends Component{
       var textT = arc2.join().split(',').join('')
       var textR = arc3.join().split(',').join('')
 
-      
-
       let message = { 
         text: textT,
         status: textS,
@@ -536,6 +608,23 @@ class FORM extends Component{
 
       this.setState({ messages: [message].concat(this.state.messages) });
     })
+
+    
+    messagesRef2.on('child_added', snapshot => {
+      var arc1 = Object.values(snapshot.child('arc').val());
+      var textS = arc1.join().split(',').join('')
+      // console.log("arc1 ",arc1);
+      // console.log("arc1: ",textS)
+      let statm = { 
+        statt: textS,
+        id: snapshot.key 
+      };
+      
+      this.setState({ stat: statm });
+      // this.setState({ stat: arc1 });
+    })
+
+
   }
 
   render() {
@@ -549,7 +638,6 @@ class FORM extends Component{
         <form onSubmit={this.saveTODO}>
           {/* <input className="ChackboxA" onClick={(event) => this.markAll(this.state.messages)} type="checkBox" /> */}
           <this.CheckAll todos={this.state.messages} />
-          
           
           <input type="text" 
             onChange={(event)=>this.setState({todov: event.target.value})}
