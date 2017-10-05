@@ -3,45 +3,40 @@ import './App.css';
 import fire from './fire.js';
 
 
-class FORM extends React.Component{
+class FORM extends Component{
   state = { 
     todov: '',
     messages: [],
-    stat: ""
+    stat: "All"
   }
   
   TODOl = (props) =>{
 
+    // console.log("////////////")
+    // console.log("button: ",props.text,", render: ",props.render)
+    // console.log("////////////")
+
+    
+
     if(props.render==="true"){
-
-      this.state.count = Number(this.state.count) + 1;
-      // console.log("count: ",this.state.count);
-      // console.log("stat: ",this.state.stat);
-
       return(
         <div style={{margin: '1em'}}>
           <form>
-
             <this.CheckBox todos={props} />
-    
             <div style={{display: 'inline-block', marginLeft: 10}}>
               <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
                 {props.text}
               </div>
             </div>
-            
             <button className="buttonX" onClick={(event) => this.deleteTODO(props, event)} > X </button>
-            
           </form>
         </div>
       );
-
     }
     else if(props.render==="false"){
-      // console.log("render false");
       return(
         <div style={{margin: '1em'}}>
-              
+            
         </div>
       );
     }
@@ -55,22 +50,6 @@ class FORM extends React.Component{
       </div>
     );
   };
-
-  CheckBox = (props) =>{
-
-    if(props.todos.status==="false"){
-      return(
-        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, event)} type="checkBox" />
-      )
-    }
-    
-    if(props.todos.status==="true"){
-      return(
-        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, event)} type="checkBox" defaultChecked/>
-      )
-    } 
-
-  }
 
   BottomBar = (props) =>{
 
@@ -108,16 +87,171 @@ class FORM extends React.Component{
     }
   };
 
-  selectTODO = (props, act, event) => {
-    event.preventDefault();
+  CheckBox = (props) =>{
+    // console.log("CheckBox props.todos.status: ",props.todos.status);
+    
 
+    if(props.todos.status==="false"){
+      // console.log("CheckBox ",props.todos.status," not checked");
+      return(
+        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, event)} type="checkBox" />
+      )
+    }
+        
+    if(props.todos.status==="true"){
+      // console.log("CheckBox ",props.todos.status," checked");
+      return(
+        <div>
+          <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, event)} type="checkBox" defaultChecked/>
+        </div>
+      )
+    } 
+  }
+
+
+  CheckAll = (props) =>{
+    
+    var count=0;
+    
+    for(var i=0;i<props.todos.length;i++){
+      if(props.todos[i].status==="true"){
+        count++;
+      }
+    }
+
+    // console.log(x === y);
+    if( count === props.todos.length && count>0){
+    // if(   x === y ){
+      // console.log("checked");
+      return(
+          // console.log("");
+          // <input className="ChackboxA" onClick={(event) => this.markAll(props,"aChecked",event)} type="checkBox" />
+          <div>
+          <input className="ChackboxA" onClick={() => this.markAll(props,"aChecked",)} type="checkBox" defaultChecked/>
+          </div>
+      );
+    }
+    // else if (   x !== y ){
+    // else if ( count !== props.todos.length ){
+    else {
+      // console.log("notchecked: ",count);
+      // console.log("not checked");
+      return(
+        
+        
+          // <input className="ChackboxA" onClick={(event) => this.markAll(props,"nChecked",event)} type="checkBox" />
+          
+          <input className="ChackboxA" onClick={() => this.markAll(props,"nChecked",)} type="checkBox" />
+          
+        // <button onClick={(event) => this.selectTODO(props, "All", event)} > All </button>
+
+        // <input className="ChackboxA" onClick={(event) => this.markAll(props)} type="checkBox" />
+      ); 
+    }
+
+  };
+
+  markAll = (props,arc) =>{
+    // event.preventDefault();
+
+    var sChecked;
+    var itemsRef = fire.database().ref('todos');
+    var arraym = this.state.messages;
+
+    
+    console.log("current stat: ",this.state.stat)
+    // for(var i=0;i<this.state.messages.length;i++){
+    //   // if(this.state.messages[i].id===props.todos.id){
+    //     // arraym[i].status=sChecked;
+    //     console.log("messages ",i," status: ",this.state.messages[i].status)
+    //     // console.log("arraym ",i," status: ",arraym[i].status)
+    //     // this.setState({messages: arraym });
+    //   // }
+    // }
+
+
+    if(arc==="nChecked"){
+      sChecked="true"
+      // this.setState({chkbox:false})
+      // console.log("arc: ",arc)
+      // console.log("true");
+    }
+    else if (arc==="aChecked"){
+      sChecked="false"
+      // console.log("arc: ",arc)
+      // console.log("false");
+      // this.setState({chkbox:true})
+    }
+
+    // console.log("arc: ",arc);
+    // console.log(arraym);
+    // console.log("sChecked: ",sChecked)
+
+    for(var i=0;i<this.state.messages.length;i++){
+      // console.log("dsa");
+      itemsRef.child(this.state.messages[i].id).update({
+        status: sChecked,
+        text: props.todos[i].text,
+        render: props.todos[i].render
+      } );
+    }
+
+    // console.log("------------------------------------");
+    // console.log(itemsRef);
+    // console.log("------------------------------------");
+    // console.log("props ",props.todos[1].status)
+
+    // console.log(this.state);
+    for(i=0;i<this.state.messages.length;i++){
+      // if(this.state.messages[i].id===props.todos.id){
+
+        // console.log("messages ",i," status: ",this.state.messages[i].status)
+        arraym[i].status=sChecked;
+        // console.log("props ",i," status: ",props.todos[i].status)
+        // console.log("messages ",i," status: ",this.state.messages[i].status)
+
+        // this.setState({messages: arraym });
+      // }
+    }
+    this.setState({messages: arraym });
+    // console.log("messages: ",this.state.messages);
+    // console.log("arraym: ",arraym);
+
+
+    // console.log("dsada",this.state.messages[1].state);
+    // this.setState({messages: arraym });
+    // this.forceUpdate();
+
+    
+
+
+    // var arraym = this.state.messages;
+
+    // console.log(props);
+
+    // for(var i=0;i<this.state.messages.length;i++){
+    //   // console.log("dsa");
+
+    //   itemsRef.child(this.state.messages[i].id).update({
+    //     status: "true",
+    //     text: props.todos[i].text,
+    //     render: props.todos[i].render
+    //   } );
+    // }
+
+    // this.selectTODO(props, "Act", event)
+    this.arc1(props, this.state.stat);
+
+  }
+
+  arc1 = (props, act) =>{
     var itemsRef = fire.database().ref('todos');
     var arraym = this.state.messages;
     // console.log(props.todos);
     // console.log("sdasd ",props.todos[1].text);
 
     if(act==="All"){
-      // console.log("All")
+      console.log("Button All")
 
       for(var i=0;i<this.state.messages.length;i++){
         itemsRef.child(this.state.messages[i].id).update({
@@ -129,25 +263,17 @@ class FORM extends React.Component{
 
       for(i=0;i<this.state.messages.length;i++){
         arraym[i].render="true";
-        this.setState({messages: arraym });
+        this.setState({messages: arraym, stat: "All" });
       }
-
-      // console.log(props.todos);
-      this.state.stat = "All";
 
     }
     else if(act==="Act"){
-      // console.log("Act")
-
-      this.rendersTODO(props, "true","false");
-      this.state.stat = "Act";
-
+      console.log("Button Act")
+      this.rendersTODO(props, "true","false","Act");
     }
     else if(act==="Com"){
-      // console.log("Com")
-
-      this.rendersTODO(props, "false","true");
-      this.state.stat = "Com";
+      console.log("Button Com")
+      this.rendersTODO(props, "false","true","Com");
     }
     else if(act==="Clc"){
       // console.log("Clc")
@@ -155,7 +281,7 @@ class FORM extends React.Component{
       var array = this.state.messages;
       
       for(i=0;i<this.state.messages.length;i++){
-        console.log(this.state.messages.length);
+        // console.log(this.state.messages.length);
         if(this.state.messages[i].status==="true")
         {
           itemsRef.child(this.state.messages[i].id).remove(function(error) {
@@ -169,14 +295,74 @@ class FORM extends React.Component{
       for(i=this.state.messages.length-1;i>= 0;i--){
         if(this.state.messages[i].status==="true"){
           array.splice(i, 1);
-          console.log("Azeroth");
+          // console.log("Azeroth");
         }
-
       }
 
       this.setState({messages: array });
-
     }
+  }
+
+  selectTODO = (props, act, event) => {
+    event.preventDefault();
+
+    this.arc1(props, act);
+
+    // var itemsRef = fire.database().ref('todos');
+    // var arraym = this.state.messages;
+
+    // if(act==="All"){
+    //   console.log("Button All")
+    //   for(var i=0;i<this.state.messages.length;i++){
+    //     itemsRef.child(this.state.messages[i].id).update({
+    //       status: props.todos[i].status,
+    //       text: props.todos[i].text,
+    //       render: "true"
+    //     } );
+    //   }
+
+    //   for(i=0;i<this.state.messages.length;i++){
+    //     arraym[i].render="true";
+    //     this.setState({messages: arraym, stat: "All" });
+    //   }
+
+    // }
+    // else if(act==="Act"){
+    //   console.log("Button Act")
+    //   this.rendersTODO(props, "true","false","Act");
+    // }
+    // else if(act==="Com"){
+    //   console.log("Button Com")
+    //   this.rendersTODO(props, "false","true","Com");
+    // }
+    // else if(act==="Clc"){
+    //   // console.log("Clc")
+
+    //   var array = this.state.messages;
+      
+    //   for(i=0;i<this.state.messages.length;i++){
+    //     if(this.state.messages[i].status==="true")
+    //     {
+    //       itemsRef.child(this.state.messages[i].id).remove(function(error) {
+    //         if (error) {
+    //           console.log(error);
+    //         }
+    //       });
+    //     }
+    //   }
+
+    //   for(i=this.state.messages.length-1;i>= 0;i--){
+    //     if(this.state.messages[i].status==="true"){
+    //       array.splice(i, 1);
+    //       // console.log("Azeroth");
+    //     }
+    //   }
+
+    //   this.setState({messages: array });
+    // }
+
+
+
   }
 
   deleteTODO = (itemId, event) => {
@@ -199,7 +385,7 @@ class FORM extends React.Component{
 
   }
 
-  rendersTODO = (props, rtrue, rfalse)=>{
+  rendersTODO = (props, rtrue, rfalse, stat)=>{
 
     var itemsRef = fire.database().ref('todos');
     var arraym = this.state.messages;
@@ -233,12 +419,12 @@ class FORM extends React.Component{
       if(this.state.messages[i].status==="true")
       {
         arraym[i].render=rfalse;
-        this.setState({messages: arraym });
+        this.setState({messages: arraym, stat: stat });
       }
       if(this.state.messages[i].status==="false")
       {
         arraym[i].render=rtrue;
-        this.setState({messages: arraym });
+        this.setState({messages: arraym, stat: stat });
       }
     }
 
@@ -247,6 +433,12 @@ class FORM extends React.Component{
   modifyTODO = (props, event) =>{
     
     var status;
+    var renderS;
+
+    // console.log("state stat: ",this.state.stat);
+    // console.log("button: ",props.todos.text);
+    // console.log("render: ",props.todos.status);
+    // console.log("render: ",props.todos.render);
 
     if (props.todos.status==="false"){
       status="true";
@@ -255,11 +447,34 @@ class FORM extends React.Component{
       status="false";
     }
 
+    
+
+    if(this.state.stat==="All"){
+      renderS="true"
+      console.log("All");
+    }
+    else if (this.state.stat==="Act" && status==="false"){
+      renderS="true"
+    }
+    else if (this.state.stat==="Act" && status==="true"){
+      renderS="false"
+    }
+    else if (this.state.stat==="Com" && status==="false"){
+      renderS="false"
+    }
+    else if (this.state.stat==="Com" && status==="true"){
+      renderS="true"
+    }
+
+
+
+
     var itemsRef = fire.database().ref('todos');
 
     itemsRef.child(props.todos.id).update({
       status: status,
-      text: props.todos.text
+      text: props.todos.text,
+      render: renderS
     } );
 
     var arraym = this.state.messages;
@@ -269,10 +484,14 @@ class FORM extends React.Component{
         this.setState({messages: arraym });
       }
     }
+
+    // console.log("----------------")
+    // console.log("state stat: ",this.state.stat);
+    // console.log("button: ",props.todos.text);
+    // console.log("render: ",props.todos.status);
+    // console.log("render: ",props.todos.render);
     
   }
-
-  
 
   saveTODO = (event) => {
     event.preventDefault();
@@ -306,6 +525,8 @@ class FORM extends React.Component{
       var textT = arc2.join().split(',').join('')
       var textR = arc3.join().split(',').join('')
 
+      
+
       let message = { 
         text: textT,
         status: textS,
@@ -326,13 +547,17 @@ class FORM extends React.Component{
         <hr/>
 
         <form onSubmit={this.saveTODO}>
+          {/* <input className="ChackboxA" onClick={(event) => this.markAll(this.state.messages)} type="checkBox" /> */}
+          <this.CheckAll todos={this.state.messages} />
+          
+          
           <input type="text" 
             onChange={(event)=>this.setState({todov: event.target.value})}
             placeholder="Arc" 
             id="txtb" required/>
         </form> 
         
-        <this.TODOList todos={this.state.messages} />
+        <this.TODOList todos={this.state.messages}/>
         <this.BottomBar todos={this.state.messages}/>
 
       </div>
@@ -340,7 +565,7 @@ class FORM extends React.Component{
   }
 }
 
-class App extends React.Component {
+class App extends Component {
   render() {
     return (
       <div>
