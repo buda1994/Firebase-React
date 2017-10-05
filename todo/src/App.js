@@ -246,6 +246,7 @@ class FORM extends Component{
 
   arc1 = (props, act) =>{
     var itemsRef = fire.database().ref('todos');
+    var itemsRef2 = fire.database().ref('stat');
     var arraym = this.state.messages;
     let statm;
     // console.log(props.todos);
@@ -274,6 +275,10 @@ class FORM extends Component{
         this.setState({messages: arraym, stat: statm });
       }
 
+      itemsRef2.child(this.state.stat.id).update({
+        arc: "All",
+      } );
+
 
       // let statm = { 
       //   statt: textS,
@@ -291,11 +296,19 @@ class FORM extends Component{
       console.log("Button Act")
       this.rendersTODO(props, "true","false","Act");
       // this.modifyStat("Act");
+
+      itemsRef2.child(this.state.stat.id).update({
+        arc: "Act",
+      } );
     }
     else if(act==="Com"){
       console.log("Button Com")
       this.rendersTODO(props, "false","true","Com");
       // this.modifyStat("Com");
+
+      itemsRef2.child(this.state.stat.id).update({
+        arc: "Com",
+      } );
     }
     else if(act==="Clc"){
       // console.log("Clc")
