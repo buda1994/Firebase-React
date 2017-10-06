@@ -1,7 +1,16 @@
 import React, { Component } from 'react';
 import './App.css';
 import fire from './fire.js';
-
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import ActionDelete from 'material-ui/svg-icons/action/delete';
+import FlatButton from 'material-ui/FlatButton';
+import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import DoneAll from 'material-ui/svg-icons/action/done-all';
+import {List,ListItem} from 'material-ui/List';
+import Checkbox from 'material-ui/Checkbox';
+import TextField from 'material-ui/TextField';
+import Delete from 'material-ui/svg-icons/action/delete';
+import AppBar from 'material-ui/AppBar';
 
 class FORM extends Component{
   state = { 
@@ -10,47 +19,21 @@ class FORM extends Component{
     stat: "All",
     editing: ""
   }
-  
-
-  // ETODOl = (props) =>{
-    
-  // }
 
   Editing = (props,event) =>{
     event.preventDefault();
-    // console.log("editing");
-    // console.log(props.text);
-    // console.log(props.id);
-
-    // this.setState({editing: props.id})
-    // console.log("editing: ",this.state.editing)
     var textA;
 
-
-    console.log("Editing")
-    console.log(props)
-    console.log("todov",this.state.todov)
-
-
     if(this.state.todov===""){
-      console.log("todo empty")
-      // console.log("textA: ",textA)
       textA=props.text;
     }
     else{
       textA=this.state.todov;
-      // console.log("todov text: ",this.state.todov)
     }
 
-
-    console.log("textA: ",textA)
-
-
     var itemsRef = fire.database().ref('todos');
-
     itemsRef.child(props.id).update({
       status: props.status,
-      // text: this.state.todov,
       text: textA,
       render: props.render
     } );
@@ -62,45 +45,27 @@ class FORM extends Component{
         this.setState({messages: arraym, editing: " " , todov: ""});
       }
     }
-    
-    
   }
 
-
-  
-
   TODOl = (props) =>{
-    
+
     if(this.state.editing===props.id){
-
       if(props.render==="true"){
-
-        // return(
-        //   <form onSubmit={this.Editing}>
-        //     <input type="text" 
-        //       onChange={(event)=>this.setState({todov: event.target.value})}
-        //       placeholder={props.text} 
-        //     />
-        //   </form> 
-        // );
         return(
-          <form onSubmit={(event)=>this.Editing( props, event )} >
-            <input type="text" 
-              onChange={(event)=>this.setState({todov: event.target.value})}
-              placeholder={props.text} 
-            />
-          </form> 
+          <MuiThemeProvider>
+            <form onSubmit={(event)=>this.Editing( props, event )} >
+              <TextField onChange={(event)=>this.setState({todov: event.target.value})} hintText={props.text}/>
+            </form> 
+          </MuiThemeProvider>
         );
 
       }
       else if(props.render==="false"){
-
         return(
           <div style={{margin: '1em'}}>
               
           </div>
         );
-
       }
 
     }
@@ -109,40 +74,62 @@ class FORM extends Component{
       if(props.render==="true"){
 
         return(
-          <div style={{margin: '1em'}}>
-            <form>
-              <this.CheckBox todos={props} />
-              <div style={{display: 'inline-block', marginLeft: 10}}>
-                <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
-                {/* <this.CheckBox todos={props} /> */}
-                  {/* {props.text} */}
-                  {/* <input type="text" placeholder={props.text} readOnly={true}/> */}
+          <div >
+            
+            {/* <MuiThemeProvider>
+              <List>
+                <ListItem 
+                  leftCheckbox={<this.CheckBox todos={props} />} 
+                  primaryText={<p onDoubleClick={() => this.setState({editing: props.id})} > {props.text} </p>}  
+                  rightIconButton={<FlatButton icon={<Delete/>} onClick={(event) => this.deleteTODO(props, event)} />}/>
+              </List>
+            </MuiThemeProvider> */}
 
-                  <p onDoubleClick={() => this.setState({editing: props.id})} > {props.text} </p>
-                  {/* <p onDoubleClick={(event) => this.Editing(props, event)} > {props.text} </p> */}
-                
-                </div>
+            
+
+            <this.CheckBox todos={props} /> 
+
+            <div style={{display: 'inline-block'}}>
+              <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
+
+                <p onDoubleClick={() => this.setState({editing: props.id})} > {props.text} </p>
+        
               </div>
-              <button className="buttonX" onClick={(event) => this.deleteTODO(props, event)} > X </button>
-            </form>
+            </div>
+
+            <MuiThemeProvider>
+              <FlatButton icon={<Delete/>} onClick={(event) => this.deleteTODO(props, event)} />
+            </MuiThemeProvider> 
+
+
+            {/* <MuiThemeProvider>
+            <form onSubmit={this.saveTODO}>
+              <this.CheckAll todos={this.state.messages} />
+              <TextField value={this.state.todov} onChange={(event)=>this.setState({todov: event.target.value})} hintText="Arc"  />
+            </form> 
+            </MuiThemeProvider> */}
+            
+
           </div>
         );
 
       }
       else if(props.render==="false"){
         return(
-          <div style={{margin: '1em'}}>
-              
-          </div>
+          <div style={{margin: '1em'}}></div>
         );
       }
-
     }
-
 
   };
   
-
+  CheckBox = (props) =>{
+    return(
+      <MuiThemeProvider>
+        <Checkbox checked={props.todos.status === "true" } onClick={(event) => this.modifyTODO(props, event)} />
+      </MuiThemeProvider>
+    )
+  }
 
   TODOList = (props) => {
     return (
@@ -163,52 +150,32 @@ class FORM extends Component{
     }
 
     if(props.todos.length===0){
-
       return(
-        <div style={{margin: '1em'}}>
-              
-        </div>
+        <div style={{margin: '1em'}}></div>
       );
-    
     }
     else{
-
       return(
         <div style={{margin: '1em'}}>
-          <form>
-            <span>{count} items left</span>
-            <button onClick={(event) => this.selectTODO(props, "All", event)} > All </button>
-            <button onClick={(event) => this.selectTODO(props, "Act", event)} > Active </button>
-            <button onClick={(event) => this.selectTODO(props, "Com", event)} > Completed </button>
-            <button onClick={(event) => this.selectTODO(props, "Clc", event)} > Clear Completed </button>
-          </form>
+            <MuiThemeProvider>
+              <Toolbar>
+                <ToolbarGroup>
+                  <span>{count} items left</span>
+                </ToolbarGroup>
+                <ToolbarGroup>
+                  <FlatButton label="All" onClick={(event) => this.selectTODO(props, "All", event)} /> 
+                  <FlatButton label="Active" onClick={(event) => this.selectTODO(props, "Act", event)} /> 
+                  <FlatButton label="Completed" onClick={(event) => this.selectTODO(props, "Com", event)} /> 
+                  <FlatButton label="Clear Completed" onClick={(event) => this.selectTODO(props, "Clc", event)} /> 
+                </ToolbarGroup>
+              </Toolbar>
+            </MuiThemeProvider>
         </div>
       );
-    
     }
   };
 
-  CheckBox = (props) =>{
-    // console.log("CheckBox props.todos.status: ",props.todos.status);
-    
-
-    if(props.todos.status==="false"){
-      // console.log("CheckBox ",props.todos.status," not checked");
-      return(
-        <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, event)} type="checkBox" />
-      )
-    }
-        
-    if(props.todos.status==="true"){
-      // console.log("CheckBox ",props.todos.status," checked");
-      return(
-        <div>
-          <input className="ChackboxA" onClick={(event) => this.modifyTODO(props, event)} type="checkBox" defaultChecked/>
-        </div>
-      )
-    } 
-  }
-
+  
 
   CheckAll = (props) =>{
     
@@ -220,36 +187,20 @@ class FORM extends Component{
       }
     }
 
-    // console.log(x === y);
     if( count === props.todos.length && count>0){
-    // if(   x === y ){
-      // console.log("checked");
       return(
-          // console.log("");
-          // <input className="ChackboxA" onClick={(event) => this.markAll(props,"aChecked",event)} type="checkBox" />
-          <div>
-          <input className="ChackboxA" onClick={() => this.markAll(props,"aChecked",)} type="checkBox" defaultChecked/>
-          </div>
+        <MuiThemeProvider>
+          <FlatButton icon={<DoneAll/>}  onClick={() => this.markAll(props,"aChecked",)}/>
+        </MuiThemeProvider>
       );
     }
-    // else if (   x !== y ){
-    // else if ( count !== props.todos.length ){
     else {
-      // console.log("notchecked: ",count);
-      // console.log("not checked");
       return(
-        
-        
-          // <input className="ChackboxA" onClick={(event) => this.markAll(props,"nChecked",event)} type="checkBox" />
-          
-          <input className="ChackboxA" onClick={() => this.markAll(props,"nChecked",)} type="checkBox" />
-          
-        // <button onClick={(event) => this.selectTODO(props, "All", event)} > All </button>
-
-        // <input className="ChackboxA" onClick={(event) => this.markAll(props)} type="checkBox" />
+          <MuiThemeProvider>
+            <FlatButton icon={<DoneAll/>}  onClick={() => this.markAll(props,"nChecked",)}/>
+          </MuiThemeProvider>
       ); 
     }
-
   };
 
   markAll = (props,arc) =>{
@@ -696,9 +647,6 @@ class FORM extends Component{
     });
 
     this.setState({ todov: ""});
-
-
-
   }
 
   componentWillMount(){
@@ -710,6 +658,8 @@ class FORM extends Component{
       var arc1 = Object.values(snapshot.child('status').val());
       var arc2 = Object.values(snapshot.child('text').val());
       var arc3 = Object.values(snapshot.child('render').val());
+
+      console.log(snapshot.val());
       
       var textS = arc1.join().split(',').join('')
       var textT = arc2.join().split(',').join('')
@@ -746,27 +696,27 @@ class FORM extends Component{
   render() {
     return (
       <div className="App">
-        <header className="App-header">
-          <h1 className="App-title">TODOS</h1>
-        </header>
-        <hr/>
+        <MuiThemeProvider>
+          <AppBar
+            style={{backgroundColor:"black"}}
+            title="TODO"
+            iconClassNameRight="muidocs-icon-navigation-expand-more"
+          />
+        </MuiThemeProvider>
 
+        <MuiThemeProvider>
         <form onSubmit={this.saveTODO}>
-          {/* <input className="ChackboxA" onClick={(event) => this.markAll(this.state.messages)} type="checkBox" /> */}
           <this.CheckAll todos={this.state.messages} />
-          
-          <input type="text" 
-            onChange={(event)=>this.setState({todov: event.target.value})}
-            placeholder="Arc" 
-            id="txtb" required/>
+          <TextField value={this.state.todov} onChange={(event)=>this.setState({todov: event.target.value})} hintText="Arc"  />
         </form> 
+        </MuiThemeProvider>
         
         <this.TODOList todos={this.state.messages}/>
         <this.BottomBar todos={this.state.messages}/>
-
       </div>
     );
   }
+
 }
 
 class App extends Component {
