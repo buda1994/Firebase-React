@@ -13,6 +13,7 @@ import TextField from 'material-ui/TextField';
 import Delete from 'material-ui/svg-icons/action/delete';
 import AppBar from 'material-ui/AppBar';
 import Active from 'material-ui/svg-icons/image/crop-square';
+import firebase from 'firebase'
 
 class FORM extends Component{
   state = { 
@@ -20,35 +21,117 @@ class FORM extends Component{
     messages: [],
     stat: "All",
     editing: "",
-    user: ""
+    user: "",
+    count: 0
   }
 
-  // login = () =>{
-  //   var provider = new firebase.auth.GoogleAuthProvider();
-  //   this.auth.signInWithPopup(provider);
-  // }
-  // logout = () =>{
-  //   this.auth.signOut();
-  // }
+  login = (event) =>{
+    event.preventDefault();
+    // let messagesRef2 = fire.database().ref('stat');
+    // var provider = fire.auth.GoogleAuthProvider();
+    var provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider);
+    // firebase.auth().signInWithPopup(provider)
+    //   .then(result => this.setState({user:result}) )
+    // this.arc4();
+
+    
+  }
+  logout = (event) =>{
+    event.preventDefault();
+    firebase.auth().signOut();
+
+    this.setState({messages: []})
+  }
+
+  AddBOx = () =>{
+    if (this.state.user){
+      return(
+        <MuiThemeProvider>
+        <form onSubmit={this.saveTODO}>
+          <this.CheckAll todos={this.state.messages} />
+          <TextField style={{marginBottom:"40px", marginTop:"30px"}} value={this.state.todov} onChange={(event)=>this.setState({todov: event.target.value})} hintText="Arc"  />
+        </form> 
+        </MuiThemeProvider>
+      )
+    }
+    else{
+      return(
+        <div></div>
+      )
+    }
+
+
+    
+  }
 
   HEADER = () =>{
-    return(
-      <MuiThemeProvider>
-        <AppBar
-          style={{backgroundColor:"black"}}
-          title="TODO"
-          iconClassNameRight="muidocs-icon-navigation-expand-more"
-        />
-      </MuiThemeProvider>
-    )
+
+    if (this.state.user){
+      return(
+        <MuiThemeProvider>
+          <AppBar
+            style={{backgroundColor:"black"}}
+            title={this.state.user.displayName}
+            iconClassNameLeft={'url(' +this.state.user.email.photoURL+ ')'}
+            
+            iconElementRight={<FlatButton label="Sign-Out" onClick={(event) => this.logout(event)} />}
+          />
+        </MuiThemeProvider>
+      )
+    }
+    else{
+      return(
+        <MuiThemeProvider>
+          <AppBar
+            style={{backgroundColor:"black"}}
+            title="TODO"
+            iconClassNameLeft="muidocs-icon-navigation-expand-more"
+            iconElementRight={<FlatButton label="Sign-In" onClick={(event) => this.login(event)} />}
+          />
+        </MuiThemeProvider>
+      )
+    }
+
+    // return(
+    //   <MuiThemeProvider>
+    //     <AppBar
+    //       style={{backgroundColor:"black"}}
+    //       title="TODO"
+    //       iconClassNameLeft="muidocs-icon-navigation-expand-more"
+    //       iconElementRight={<FlatButton label="Login" onClick={(event) => this.login(event)} />}
+    //     />
+    //   </MuiThemeProvider>
+    // )
+
+
+
   }
 
   TODOList = (props) => {
+    // if (this.state.user){
+    //   return (
+    //     <div className="text-center">
+    //       {props.todos.map(todos => <this.TODOl key={todos.id} {...todos} />)}
+    //     </div>
+    //   );
+    // }
+    // else{
+    //   return(
+    //     <div></div>
+    //   );
+    // }
+    // console.log("------------")
+    // console.log(this.state.messages)
+    // console.log("------------")
+
     return (
       <div className="text-center">
         {props.todos.map(todos => <this.TODOl key={todos.id} {...todos} />)}
       </div>
     );
+
+
   };
 
   TODOl = (props) =>{
@@ -169,6 +252,8 @@ class FORM extends Component{
   BottomBar = (props) =>{
     var count=0;
 
+
+
     for(var i=0;i<props.todos.length;i++){
       if(props.todos[i].status==="false"){
         count++;
@@ -189,16 +274,18 @@ class FORM extends Component{
                 <span style={{color:"white"}}>{count} items left</span>
               </ToolbarGroup>
               <ToolbarGroup>
-                <FlatButton style={{backgroundColor:"white"}} label="All" onClick={(event) => this.selectTODO(props, "All", event)} /> 
-                <FlatButton style={{backgroundColor:"white"}} label="Active" onClick={(event) => this.selectTODO(props, "Act", event)} /> 
-                <FlatButton style={{backgroundColor:"white"}} label="Completed" onClick={(event) => this.selectTODO(props, "Com", event)} /> 
-                <FlatButton style={{backgroundColor:"white"}} label="Clear Completed" onClick={(event) => this.selectTODO(props, "Clc", event)} /> 
+                <FlatButton style={{backgroundColor:"black", color:"white"}} label="All" onClick={(event) => this.selectTODO(props, "All", event)} /> 
+                <FlatButton style={{backgroundColor:"black", color:"white"}} label="Active" onClick={(event) => this.selectTODO(props, "Act", event)} /> 
+                <FlatButton style={{backgroundColor:"black", color:"white"}} label="Completed" onClick={(event) => this.selectTODO(props, "Com", event)} /> 
+                <FlatButton style={{backgroundColor:"black", color:"white"}} label="Clear Completed" onClick={(event) => this.selectTODO(props, "Clc", event)} /> 
               </ToolbarGroup>
             </Toolbar>
           </MuiThemeProvider>
         </div>
       );
     }
+
+    
   };
 
   markAll = (props,arc) =>{
@@ -451,6 +538,32 @@ class FORM extends Component{
     this.setState({ todov: ""});
   }
 
+  arc4 = () =>{
+
+    console.log("arc4");
+
+    let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
+
+    messagesRef.on('child_added', snapshot => {
+      var arc1 = Object.values(snapshot.child('status').val());
+      var arc2 = Object.values(snapshot.child('text').val());
+      var arc3 = Object.values(snapshot.child('render').val());
+      
+      var textS = arc1.join().split(',').join('')
+      var textT = arc2.join().split(',').join('')
+      var textR = arc3.join().split(',').join('')
+
+      let message = { 
+        text: textT,
+        status: textS,
+        render: textR,
+        id: snapshot.key 
+      };
+
+      this.setState({ messages: [message].concat(this.state.messages) });
+    })
+  }
+
   componentWillMount(){
     let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
     let messagesRef2 = fire.database().ref('stat');
@@ -487,10 +600,26 @@ class FORM extends Component{
       this.setState({ stat: statm });
     })
 
+
+    firebase.auth().onAuthStateChanged(user => {
+      if (user){
+        
+        // console.log(this.state.messages)
+        // console.log("user true")
+        // console.log(message)
+        // this.arc4();
+        this.setState({user: user})
+      }
+      else{
+        // console.log("user false")
+        // console.log(this.state.messages)
+        this.setState({user: null})
+      }
+    })
+
   }
 
 
-  
 
   render() {
     return (
@@ -504,12 +633,14 @@ class FORM extends Component{
         </MuiThemeProvider> */}
         <this.HEADER/>
 
-        <MuiThemeProvider>
+        <this.AddBOx/>
+
+        {/* <MuiThemeProvider>
         <form onSubmit={this.saveTODO}>
           <this.CheckAll todos={this.state.messages} />
-          <TextField style={{marginBottom:"50px"}} value={this.state.todov} onChange={(event)=>this.setState({todov: event.target.value})} hintText="Arc"  />
+          <TextField style={{marginBottom:"40px", marginTop:"30px"}} value={this.state.todov} onChange={(event)=>this.setState({todov: event.target.value})} hintText="Arc"  />
         </form> 
-        </MuiThemeProvider>
+        </MuiThemeProvider> */}
 
         {/* <hd/> */}
         
