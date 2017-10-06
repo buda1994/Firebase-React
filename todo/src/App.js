@@ -7,42 +7,143 @@ class FORM extends Component{
   state = { 
     todov: '',
     messages: [],
-    stat: "All"
+    stat: "All",
+    editing: ""
   }
   
-  TODOl = (props) =>{
 
-    // console.log("////////////")
-    // console.log("button: ",props.text,", render: ",props.render)
-    // console.log("////////////")
-
+  // ETODOl = (props) =>{
     
+  // }
 
-    if(props.render==="true"){
-      return(
-        <div style={{margin: '1em'}}>
-          <form>
-            <this.CheckBox todos={props} />
-            <div style={{display: 'inline-block', marginLeft: 10}}>
-              <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
-                {props.text}
+  Editing = (props,event) =>{
+    event.preventDefault();
+    // console.log("editing");
+    // console.log(props.text);
+    // console.log(props.id);
+
+    // this.setState({editing: props.id})
+    // console.log("editing: ",this.state.editing)
+    var textA;
+
+
+    console.log("Editing")
+    console.log(props)
+    console.log("todov",this.state.todov)
+
+
+    if(this.state.todov===""){
+      console.log("todo empty")
+      // console.log("textA: ",textA)
+      textA=props.text;
+    }
+    else{
+      textA=this.state.todov;
+      // console.log("todov text: ",this.state.todov)
+    }
+
+
+    console.log("textA: ",textA)
+
+
+    var itemsRef = fire.database().ref('todos');
+
+    itemsRef.child(props.id).update({
+      status: props.status,
+      // text: this.state.todov,
+      text: textA,
+      render: props.render
+    } );
+
+    var arraym = this.state.messages;
+    for(var i=0;i<this.state.messages.length;i++){
+      if(this.state.messages[i].id===props.id){
+        arraym[i].text=textA;
+        this.setState({messages: arraym, editing: " " , todov: ""});
+      }
+    }
+    
+    
+  }
+
+
+  
+
+  TODOl = (props) =>{
+    
+    if(this.state.editing===props.id){
+
+      if(props.render==="true"){
+
+        // return(
+        //   <form onSubmit={this.Editing}>
+        //     <input type="text" 
+        //       onChange={(event)=>this.setState({todov: event.target.value})}
+        //       placeholder={props.text} 
+        //     />
+        //   </form> 
+        // );
+        return(
+          <form onSubmit={(event)=>this.Editing( props, event )} >
+            <input type="text" 
+              onChange={(event)=>this.setState({todov: event.target.value})}
+              placeholder={props.text} 
+            />
+          </form> 
+        );
+
+      }
+      else if(props.render==="false"){
+
+        return(
+          <div style={{margin: '1em'}}>
+              
+          </div>
+        );
+
+      }
+
+    }
+    else {
+
+      if(props.render==="true"){
+
+        return(
+          <div style={{margin: '1em'}}>
+            <form>
+              <this.CheckBox todos={props} />
+              <div style={{display: 'inline-block', marginLeft: 10}}>
+                <div style={{fontSize: '1.25m', fontWeight: 'bold'}}>
+                {/* <this.CheckBox todos={props} /> */}
+                  {/* {props.text} */}
+                  {/* <input type="text" placeholder={props.text} readOnly={true}/> */}
+
+                  <p onDoubleClick={() => this.setState({editing: props.id})} > {props.text} </p>
+                  {/* <p onDoubleClick={(event) => this.Editing(props, event)} > {props.text} </p> */}
+                
+                </div>
               </div>
-            </div>
-            <button className="buttonX" onClick={(event) => this.deleteTODO(props, event)} > X </button>
-          </form>
-        </div>
-      );
+              <button className="buttonX" onClick={(event) => this.deleteTODO(props, event)} > X </button>
+            </form>
+          </div>
+        );
+
+      }
+      else if(props.render==="false"){
+        return(
+          <div style={{margin: '1em'}}>
+              
+          </div>
+        );
+      }
+
     }
-    else if(props.render==="false"){
-      return(
-        <div style={{margin: '1em'}}>
-            
-        </div>
-      );
-    }
+
 
   };
   
+
+
   TODOList = (props) => {
     return (
       <div className="text-center">
@@ -510,12 +611,12 @@ class FORM extends Component{
     }
 
     
-    console.log("idprops")
-    console.log(props.todos.id);
-    console.log(this.state.stat.statt);
-    console.log(status);
-    console.log(props.todos.text);
-    console.log(renderS);
+    // console.log("idprops")
+    // console.log(props.todos.id);
+    // console.log(this.state.stat.statt);
+    // console.log(status);
+    // console.log(props.todos.text);
+    // console.log(renderS);
 
     // console.log(props)
 
@@ -581,7 +682,7 @@ class FORM extends Component{
     event.preventDefault();
 
     var arc5=""
-    if(this.state.stat==="Com"){
+    if(this.state.stat.statt==="Com"){
       arc5="false";
     }
     else{
@@ -593,6 +694,8 @@ class FORM extends Component{
       text: this.state.todov,
       render: arc5,
     });
+
+    this.setState({ todov: ""});
 
 
 
