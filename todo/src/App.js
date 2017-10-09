@@ -33,11 +33,8 @@ class FORM extends Component {
         </MuiThemeProvider>
       );
     }
-    else {
-      return (
-        <div></div>
-      );
-    }
+
+    return false;
   }
 
   Header = () => {
@@ -53,18 +50,17 @@ class FORM extends Component {
         </MuiThemeProvider>
       );
     }
-    else {
-      return (
-        <MuiThemeProvider>
-          <AppBar
-            style={{ backgroundColor: "black" }}
-            title="TODO"
-            iconClassNameLeft="muidocs-icon-navigation-expand-more"
-            iconElementRight={<FlatButton label="Sign-In" onClick={(event) => this.login(event)} />}
-          />
-        </MuiThemeProvider>
-      );
-    }
+
+    return (
+      <MuiThemeProvider>
+        <AppBar
+          style={{ backgroundColor: "black" }}
+          title="TODO"
+          iconClassNameLeft="muidocs-icon-navigation-expand-more"
+          iconElementRight={<FlatButton label="Sign-In" onClick={(event) => this.login(event)} />}
+        />
+      </MuiThemeProvider>
+    );
   }
 
   TodoList = (props) => {
@@ -75,11 +71,8 @@ class FORM extends Component {
         </div>
       );
     }
-    else {
-      return (
-        <div></div>
-      );
-    }
+
+    return false;
   };
 
   TodoElement = (props) => {
@@ -95,36 +88,29 @@ class FORM extends Component {
           </div>
         );
       }
-      else if (props.render === "false") {
-        return (
-          <div style={{ margin: '1em' }}></div>
-        );
-      }
+
+      return false;
     }
-    else {
-      if (props.render === "true") {
-        return (
-          <div >
-            <div style={{ display: 'inline-block', width: "25%" }}>
-              <this.CheckBox todos={props} />
-            </div>
-            <div style={{ display: 'inline-block', width: "50%" }}>
-              <p onDoubleClick={() => this.setState({ editing: props.id })} > {props.text} </p>
-            </div>
-            <div style={{ display: 'inline-block', width: "25%" }}>
-              <MuiThemeProvider>
-                <FlatButton icon={<Delete />} onClick={(event) => this.deleteItem(props, event)} />
-              </MuiThemeProvider>
-            </div>
+
+    if (props.render === "true") {
+      return (
+        <div >
+          <div style={{ display: 'inline-block', width: "25%" }}>
+            <this.CheckBox todos={props} />
           </div>
-        );
-      }
-      else if (props.render === "false") {
-        return (
-          <div style={{ margin: '1em' }}></div>
-        );
-      }
+          <div style={{ display: 'inline-block', width: "50%" }}>
+            <p onDoubleClick={() => this.setState({ editing: props.id })} > {props.text} </p>
+          </div>
+          <div style={{ display: 'inline-block', width: "25%" }}>
+            <MuiThemeProvider>
+              <FlatButton icon={<Delete />} onClick={(event) => this.deleteItem(props, event)} />
+            </MuiThemeProvider>
+          </div>
+        </div>
+      );
     }
+
+    return false;
   };
 
   CheckBox = (props) => {
@@ -135,13 +121,12 @@ class FORM extends Component {
         </MuiThemeProvider>
       );
     }
-    else {
-      return (
-        <MuiThemeProvider>
-          <FlatButton icon={<Active />} onClick={(event) => this.modifyItem(props, event)} />
-        </MuiThemeProvider>
-      );
-    }
+
+    return (
+      <MuiThemeProvider>
+        <FlatButton icon={<Active />} onClick={(event) => this.modifyItem(props, event)} />
+      </MuiThemeProvider>
+    );
   }
 
   CheckAll = (props) => {
@@ -152,6 +137,7 @@ class FORM extends Component {
         count++;
       }
     }
+
     if (count === props.todos.length && count > 0) {
       return (
         <MuiThemeProvider>
@@ -159,13 +145,12 @@ class FORM extends Component {
         </MuiThemeProvider>
       );
     }
-    else {
-      return (
-        <MuiThemeProvider>
-          <FlatButton icon={<DoneAll />} onClick={() => this.markAll(props, "true", )} />
-        </MuiThemeProvider>
-      );
-    }
+
+    return (
+      <MuiThemeProvider>
+        <FlatButton icon={<DoneAll />} onClick={() => this.markAll(props, "true", )} />
+      </MuiThemeProvider>
+    );
   };
 
   BottomBar = (props) => {
@@ -177,12 +162,7 @@ class FORM extends Component {
       }
     }
 
-    if (props.todos.length === 0) {
-      return (
-        <div style={{ margin: '1em' }}></div>
-      );
-    }
-    else {
+    if (props.todos.length !== 0) {
       return (
         <div style={{ marginTop: "50px", margin: '1em' }}>
           <MuiThemeProvider>
@@ -201,6 +181,8 @@ class FORM extends Component {
         </div>
       );
     }
+
+    return false;
   };
 
   login = (event) => {
@@ -239,12 +221,7 @@ class FORM extends Component {
     event.preventDefault();
     var textTemp;
 
-    if (this.state.todov === "") {
-      textTemp = props.text;
-    }
-    else {
-      textTemp = this.state.todov;
-    }
+    textTemp = this.state.todov === "" ? props.text : this.state.todov;
 
     var itemsRef = fire.database().ref('todos');
     itemsRef.child(props.id).update({
@@ -269,7 +246,6 @@ class FORM extends Component {
     let stattemp;
 
     if (act === "All") {
-
       for (var i = 0; i < this.state.messages.length; i++) {
         itemsRef.child(this.state.messages[i].id).update({
           status: props.todos[i].status,
@@ -331,7 +307,6 @@ class FORM extends Component {
 
   selectItems = (props, act, event) => {
     event.preventDefault();
-
     this.changeRenderDB(props, act);
   }
 
@@ -399,12 +374,7 @@ class FORM extends Component {
     var renderStatus;
     var itemsRef = fire.database().ref('todos');
 
-    if (props.todos.status === "false") {
-      status = "true";
-    }
-    else if (props.todos.status === "true") {
-      status = "false";
-    }
+    status = props.todos.status === "false" ? "true" : 'false';
 
     if (this.state.stat.statt === "All") {
       renderStatus = "true"
@@ -440,14 +410,9 @@ class FORM extends Component {
 
   saveItem = (event) => {
     event.preventDefault();
-
+    
     var renderTemp = ""
-    if (this.state.stat.statt === "Com") {
-      renderTemp = "false";
-    }
-    else {
-      renderTemp = "true";
-    }
+    renderTemp = this.state.stat.statt === "Com" ? "false" : 'true';
 
     fire.database().ref('todos').push({
       status: "false",
