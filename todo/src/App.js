@@ -356,17 +356,15 @@ class FORM extends Component{
   }
 
   rendersTODO = (props, rtrue, rfalse, stat)=>{
-
     var itemsRef = fire.database().ref('todos');
-    var arraym = this.state.messages;
+    var arraytemp = this.state.messages;
 
-    let statm = { 
+    let stattemp = { 
       statt: stat,
       id: this.state.stat.id
     };
 
     for(var i=0;i<this.state.messages.length;i++){
-
       if(this.state.messages[i].status==="true"){
         itemsRef.child(this.state.messages[i].id).update({
           status: props.todos[i].status,
@@ -381,18 +379,16 @@ class FORM extends Component{
           render: rtrue
         } );
       }
-
     }
 
     for(i=0;i<this.state.messages.length;i++){
-
       if(this.state.messages[i].status==="true"){
-        arraym[i].render=rfalse;
-        this.setState({messages: arraym, stat: statm });
+        arraytemp[i].render=rfalse;
+        this.setState({messages: arraytemp, stat: stattemp });
       }
-      if(this.state.messages[i].status==="false"){
-        arraym[i].render=rtrue;
-        this.setState({messages: arraym, stat: statm });
+      else if(this.state.messages[i].status==="false"){
+        arraytemp[i].render=rtrue;
+        this.setState({messages: arraytemp, stat: stattemp });
       }
     }
 
