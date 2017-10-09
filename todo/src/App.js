@@ -28,7 +28,7 @@ class FORM extends Component{
         <MuiThemeProvider>
         <form onSubmit={this.saveTODO}>
           <this.CheckAll todos={this.state.messages} />
-          <TextField style={{marginBottom:"40px", marginTop:"30px"}} value={this.state.todov} onChange={(event)=>this.setState({todov: event.target.value})} hintText="Arc"  />
+          <TextField style={{marginBottom:"40px", marginTop:"30px"}} value={this.state.todov} onChange={(event)=>this.setState({todov: event.target.value})} hintText="What needs to be done?"  />
         </form> 
         </MuiThemeProvider>
       )
@@ -265,8 +265,8 @@ class FORM extends Component{
   changeRenderDB = (props, act) =>{
     var itemsRef = fire.database().ref('todos');
     var itemsRef2 = fire.database().ref('stat');
-    var arraym = this.state.messages;
-    let statm;
+    var arraytemp = this.state.messages;
+    let stattemp;
 
     if(act==="All"){
 
@@ -278,36 +278,36 @@ class FORM extends Component{
         } );
       }
 
-      statm = { 
+      stattemp = { 
         statt: "All",
         id: this.state.stat.id
       };
 
       for(i=0;i<this.state.messages.length;i++){
-        arraym[i].render="true";
-        this.setState({messages: arraym, stat: statm });
+        arraytemp[i].render="true";
+        this.setState({messages: arraytemp, stat: stattemp });
       }
 
       itemsRef2.child(this.state.stat.id).update({
-        arc: "All",
+        state: "All",
       } );
     }
     else if(act==="Act"){
       this.rendersTODO(props, "true","false","Act");
 
       itemsRef2.child(this.state.stat.id).update({
-        arc: "Act",
+        state: "Act",
       } );
     }
     else if(act==="Com"){
       this.rendersTODO(props, "false","true","Com");
 
       itemsRef2.child(this.state.stat.id).update({
-        arc: "Com",
+        state: "Com",
       } );
     }
     else if(act==="Clc"){
-      var array = this.state.messages;
+      arraytemp = this.state.messages;
       
       for(i=0;i<this.state.messages.length;i++){
         if(this.state.messages[i].status==="true"){
@@ -321,11 +321,11 @@ class FORM extends Component{
 
       for(i=this.state.messages.length-1;i>= 0;i--){
         if(this.state.messages[i].status==="true"){
-          array.splice(i, 1);
+          arraytemp.splice(i, 1);
         }
       }
 
-      this.setState({messages: array });
+      this.setState({messages: arraytemp });
     }
   }
 
@@ -490,7 +490,7 @@ class FORM extends Component{
         })
         
         messagesRef2.on('child_added', snapshot => {
-          var statdb = Object.values(snapshot.child('arc').val());
+          var statdb = Object.values(snapshot.child('state').val());
           var textStat = statdb.join().split(',').join('')
     
           let statm = { 
