@@ -489,12 +489,12 @@ class FORM extends Component{
           var statdb = Object.values(snapshot.child('state').val());
           var textStat = statdb.join().split(',').join('')
     
-          let statm = { 
+          let stattemp = { 
             statt: textStat,
             id: snapshot.key 
           };
           
-          this.setState({ stat: statm });
+          this.setState({ stat: stattemp });
         })
       }
       else{
