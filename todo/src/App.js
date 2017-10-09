@@ -428,12 +428,12 @@ class FORM extends Component{
       render: renderS
     } );
 
-    var arraym = this.state.messages;
+    var arraytemp = this.state.messages;
     for(var i=0;i<this.state.messages.length;i++){
       if(this.state.messages[i].id===props.todos.id){
-        arraym[i].status=status;
-        arraym[i].render=renderS;
-        this.setState({messages: arraym });
+        arraytemp[i].status=status;
+        arraytemp[i].render=renderS;
+        this.setState({messages: arraytemp});
       }
     }
   }
