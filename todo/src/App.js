@@ -76,9 +76,7 @@ class FORM extends Component{
     }
     else{
       return(
-        <div>
-
-        </div>
+        <div></div>
       )
     }
   };
@@ -98,9 +96,7 @@ class FORM extends Component{
       }
       else if(props.render==="false"){
         return(
-          <div style={{margin: '1em'}}>
-            
-          </div>
+          <div style={{margin: '1em'}}></div>
         );
       }
     }
@@ -204,7 +200,6 @@ class FORM extends Component{
         </div>
       );
     }
-
   };
 
   login = (event) =>{
@@ -219,23 +214,23 @@ class FORM extends Component{
     this.setState({messages: []})
   }
 
-  markAll = (props,arc) =>{
+  markAll = (props,statusm) =>{
     var itemsRef = fire.database().ref('todos');
-    var arraym = this.state.messages;
+    var arraytemp = this.state.messages;
 
     for(var i=0;i<this.state.messages.length;i++){
       itemsRef.child(this.state.messages[i].id).update({
-        status: arc,
+        status: statusm,
         text: props.todos[i].text,
         render: props.todos[i].render
       } );
     }
 
     for(i=0;i<this.state.messages.length;i++){
-        arraym[i].status=arc;
+        arraytemp[i].status=statusm;
     }
 
-    this.setState({messages: arraym });
+    this.setState({messages: arraytemp });
     this.changeRenderDB(props, this.state.stat.statt);
 
   }
@@ -476,18 +471,18 @@ class FORM extends Component{
         let messagesRef2 = fire.database().ref('stat');
     
         messagesRef.on('child_added', snapshot => {
-          var arc1 = Object.values(snapshot.child('status').val());
-          var arc2 = Object.values(snapshot.child('text').val());
-          var arc3 = Object.values(snapshot.child('render').val());
+          var statusdb = Object.values(snapshot.child('status').val());
+          var textdb = Object.values(snapshot.child('text').val());
+          var renderdb = Object.values(snapshot.child('render').val());
           
-          var textS = arc1.join().split(',').join('')
-          var textT = arc2.join().split(',').join('')
-          var textR = arc3.join().split(',').join('')
+          var textStatus = statusdb.join().split(',').join('')
+          var textText = textdb.join().split(',').join('')
+          var textRender = renderdb.join().split(',').join('')
     
           let message = { 
-            text: textT,
-            status: textS,
-            render: textR,
+            text: textText,
+            status: textStatus,
+            render: textRender,
             id: snapshot.key 
           };
     
@@ -495,11 +490,11 @@ class FORM extends Component{
         })
         
         messagesRef2.on('child_added', snapshot => {
-          var arc1 = Object.values(snapshot.child('arc').val());
-          var textS = arc1.join().split(',').join('')
+          var statdb = Object.values(snapshot.child('arc').val());
+          var textStat = statdb.join().split(',').join('')
     
           let statm = { 
-            statt: textS,
+            statt: textStat,
             id: snapshot.key 
           };
           
