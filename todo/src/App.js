@@ -11,6 +11,7 @@ import Delete from 'material-ui/svg-icons/action/delete';
 import AppBar from 'material-ui/AppBar';
 import Active from 'material-ui/svg-icons/image/crop-square';
 import firebase from 'firebase'
+import Avatar from 'material-ui/Avatar';
 
 class FORM extends Component{
   state = { 
@@ -45,8 +46,8 @@ class FORM extends Component{
         <MuiThemeProvider>
           <AppBar
             style={{backgroundColor:"black"}}
+            iconElementLeft = {<Avatar src= {this.state.user.photoURL} />}
             title={this.state.user.displayName}
-            iconClassNameLeft={'url(' +this.state.user.email.photoURL+ ')'}
             iconElementRight={<FlatButton label="Sign-Out" onClick={(event) => this.logout(event)} />}
           />
         </MuiThemeProvider>
@@ -214,50 +215,49 @@ class FORM extends Component{
     this.setState({messages: []})
   }
 
-  markAll = (props,statusm) =>{
+  markAll = (props,statusmark) =>{
     var itemsRef = fire.database().ref('todos');
     var arraytemp = this.state.messages;
 
     for(var i=0;i<this.state.messages.length;i++){
       itemsRef.child(this.state.messages[i].id).update({
-        status: statusm,
+        status: statusmark,
         text: props.todos[i].text,
         render: props.todos[i].render
       } );
     }
 
     for(i=0;i<this.state.messages.length;i++){
-        arraytemp[i].status=statusm;
+        arraytemp[i].status=statusmark;
     }
 
     this.setState({messages: arraytemp });
     this.changeRenderDB(props, this.state.stat.statt);
-
   }
 
   editing = (props,event) =>{
     event.preventDefault();
-    var textA;
+    var texttemp;
 
     if(this.state.todov===""){
-      textA=props.text;
+      texttemp=props.text;
     }
     else{
-      textA=this.state.todov;
+      texttemp=this.state.todov;
     }
 
     var itemsRef = fire.database().ref('todos');
     itemsRef.child(props.id).update({
       status: props.status,
-      text: textA,
+      text: texttemp,
       render: props.render
     } );
 
-    var arraym = this.state.messages;
+    var arraytemp = this.state.messages;
     for(var i=0;i<this.state.messages.length;i++){
       if(this.state.messages[i].id===props.id){
-        arraym[i].text=textA;
-        this.setState({messages: arraym, editing: " " , todov: ""});
+        arraytemp[i].text=texttemp;
+        this.setState({messages: arraytemp, editing: " " , todov: ""});
       }
     }
   }
