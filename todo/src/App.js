@@ -441,21 +441,21 @@ class FORM extends Component{
   saveTODO = (event) => {
     event.preventDefault();
 
-    var arc5=""
+    var rendertemp=""
     if(this.state.stat.statt==="Com"){
-      arc5="false";
+      rendertemp="false";
     }
     else{
-      arc5="true";
+      rendertemp="true";
     }
 
     fire.database().ref('todos').push( {
       status: "false",
       text: this.state.todov,
-      render: arc5,
+      render: rendertemp,
     });
 
-    this.setState({ todov: ""});
+    this.setState({todov: ""});
   }
 
   componentWillMount(){
