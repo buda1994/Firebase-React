@@ -34,7 +34,7 @@ class FORM extends Component {
       );
     }
 
-    return false;
+    return null;
   }
 
   Header = () => {
@@ -72,7 +72,7 @@ class FORM extends Component {
       );
     }
 
-    return false;
+    return null;
   };
 
   TodoElement = (props) => {
@@ -88,8 +88,6 @@ class FORM extends Component {
           </div>
         );
       }
-
-      return false;
     }
 
     if (props.render === "true") {
@@ -110,7 +108,7 @@ class FORM extends Component {
       );
     }
 
-    return false;
+    return null;
   };
 
   CheckBox = (props) => {
@@ -182,7 +180,7 @@ class FORM extends Component {
       );
     }
 
-    return false;
+    return null;
   };
 
   login = (event) => {
@@ -410,7 +408,7 @@ class FORM extends Component {
 
   saveItem = (event) => {
     event.preventDefault();
-    
+
     var renderTemp = ""
     renderTemp = this.state.stat.statt === "Com" ? "false" : 'true';
 
