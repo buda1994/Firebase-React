@@ -38,26 +38,23 @@ class FORM extends Component {
   }
 
   Header = () => {
+    var icon = null
+    var title = "TODO"
+    var eleRight = <FlatButton label="Sign-In" onClick={(event) => this.login(event)} />;
+
     if (this.state.user) {
-      return (
-        <MuiThemeProvider>
-          <AppBar
-            style={{ backgroundColor: "black" }}
-            iconElementLeft={<Avatar src={this.state.user.photoURL} />}
-            title={this.state.user.displayName}
-            iconElementRight={<FlatButton label="Sign-Out" onClick={(event) => this.logout(event)} />}
-          />
-        </MuiThemeProvider>
-      );
+      icon = <Avatar src={this.state.user.photoURL} />
+      title = this.state.user.displayName;
+      eleRight = <FlatButton label="Sign-Out" onClick={(event) => this.logout(event)} />;
     }
 
     return (
       <MuiThemeProvider>
         <AppBar
           style={{ backgroundColor: "black" }}
-          title="TODO"
-          iconClassNameLeft="muidocs-icon-navigation-expand-more"
-          iconElementRight={<FlatButton label="Sign-In" onClick={(event) => this.login(event)} />}
+          iconElementLeft={icon}
+          title={title}
+          iconElementRight={eleRight}
         />
       </MuiThemeProvider>
     );
@@ -111,46 +108,6 @@ class FORM extends Component {
     return null;
   };
 
-  CheckBox = (props) => {
-    if (props.todos.status === "true") {
-      return (
-        <MuiThemeProvider>
-          <FlatButton icon={<Done />} onClick={(event) => this.modifyItem(props, event)} />
-        </MuiThemeProvider>
-      );
-    }
-
-    return (
-      <MuiThemeProvider>
-        <FlatButton icon={<Active />} onClick={(event) => this.modifyItem(props, event)} />
-      </MuiThemeProvider>
-    );
-  }
-
-  CheckAll = (props) => {
-    var count = 0;
-
-    for (var i = 0; i < props.todos.length; i++) {
-      if (props.todos[i].status === "true") {
-        count++;
-      }
-    }
-
-    if (count === props.todos.length && count > 0) {
-      return (
-        <MuiThemeProvider>
-          <FlatButton icon={<DoneAll />} onClick={() => this.markAll(props, "false", )} />
-        </MuiThemeProvider>
-      );
-    }
-
-    return (
-      <MuiThemeProvider>
-        <FlatButton icon={<DoneAll />} onClick={() => this.markAll(props, "true", )} />
-      </MuiThemeProvider>
-    );
-  };
-
   BottomBar = (props) => {
     var count = 0;
 
@@ -183,6 +140,59 @@ class FORM extends Component {
     return null;
   };
 
+  CheckBox = (props) => {
+    var icon = ""
+    icon = props.todos.status === "true" ? <Done /> : <Active />;
+
+    return (
+      <MuiThemeProvider>
+        <FlatButton icon={icon} onClick={(event) => this.modifyItem(props, event)} />
+      </MuiThemeProvider>
+    );
+  }
+
+  CheckAll = (props) => {
+    var count = 0;
+    var statusTemp = "true"
+
+    for (var i = 0; i < props.todos.length; i++) {
+      if (props.todos[i].status === "true") {
+        count++;
+      }
+    }
+
+    if (count === props.todos.length && count > 0) {
+      statusTemp = "false";
+    }
+
+    return (
+      <MuiThemeProvider>
+        <FlatButton icon={<DoneAll />} onClick={() => this.markAll(props, statusTemp)} />
+      </MuiThemeProvider>
+    );
+
+  };
+
+  markAll = (props, statusMark) => {
+    var itemsRef = fire.database().ref('todos');
+    var arrayTemp = this.state.messages;
+
+    for (var i = 0; i < this.state.messages.length; i++) {
+      itemsRef.child(this.state.messages[i].id).update({
+        status: statusMark.toString(),
+        text: props.todos[i].text,
+        render: props.todos[i].render
+      });
+    }
+
+    for (i = 0; i < this.state.messages.length; i++) {
+      arrayTemp[i].status = statusMark.toString();
+    }
+
+    this.setState({ messages: arrayTemp });
+    this.changeRenderDB(props, this.state.stat.statt);
+  }
+
   login = (event) => {
     event.preventDefault();
     var provider = new firebase.auth.GoogleAuthProvider();
@@ -193,26 +203,6 @@ class FORM extends Component {
     event.preventDefault();
     firebase.auth().signOut();
     this.setState({ messages: [] })
-  }
-
-  markAll = (props, statusmark) => {
-    var itemsRef = fire.database().ref('todos');
-    var arrayTemp = this.state.messages;
-
-    for (var i = 0; i < this.state.messages.length; i++) {
-      itemsRef.child(this.state.messages[i].id).update({
-        status: statusmark,
-        text: props.todos[i].text,
-        render: props.todos[i].render
-      });
-    }
-
-    for (i = 0; i < this.state.messages.length; i++) {
-      arrayTemp[i].status = statusmark;
-    }
-
-    this.setState({ messages: arrayTemp });
-    this.changeRenderDB(props, this.state.stat.statt);
   }
 
   editItem = (props, event) => {
