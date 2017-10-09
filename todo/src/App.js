@@ -345,11 +345,11 @@ class FORM extends Component{
       }
     });
 
-    var array = this.state.messages;
+    var arraytemp = this.state.messages;
     for(var i=0;i<this.state.messages.length;i++){
       if(this.state.messages[i].id===itemId.id){
-        array.splice(i, 1);
-        this.setState({messages: array });
+        arraytemp.splice(i, 1);
+        this.setState({messages: arraytemp });
       }
     }
 
