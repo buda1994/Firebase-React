@@ -2,13 +2,10 @@ import React, { Component } from 'react';
 import './App.css';
 import fire from './fire.js';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-import ActionDelete from 'material-ui/svg-icons/action/delete';
 import FlatButton from 'material-ui/FlatButton';
-import {Toolbar, ToolbarGroup, ToolbarSeparator, ToolbarTitle} from 'material-ui/Toolbar';
+import {Toolbar, ToolbarGroup} from 'material-ui/Toolbar';
 import DoneAll from 'material-ui/svg-icons/action/done-all';
 import Done from 'material-ui/svg-icons/action/done';
-import {List,ListItem} from 'material-ui/List';
-import Checkbox from 'material-ui/Checkbox';
 import TextField from 'material-ui/TextField';
 import Delete from 'material-ui/svg-icons/action/delete';
 import AppBar from 'material-ui/AppBar';
@@ -21,27 +18,7 @@ class FORM extends Component{
     messages: [],
     stat: "All",
     editing: "",
-    user: "",
-    count: 0
-  }
-
-  login = (event) =>{
-    event.preventDefault();
-    // let messagesRef2 = fire.database().ref('stat');
-    // var provider = fire.auth.GoogleAuthProvider();
-    var provider = new firebase.auth.GoogleAuthProvider();
-    firebase.auth().signInWithPopup(provider);
-    // firebase.auth().signInWithPopup(provider)
-    //   .then(result => this.setState({user:result}) )
-    // this.arc4();
-
-    
-  }
-  logout = (event) =>{
-    event.preventDefault();
-    firebase.auth().signOut();
-
-    this.setState({messages: []})
+    user: ""
   }
 
   AddBOx = () =>{
@@ -60,13 +37,9 @@ class FORM extends Component{
         <div></div>
       )
     }
-
-
-    
   }
 
   HEADER = () =>{
-
     if (this.state.user){
       return(
         <MuiThemeProvider>
@@ -74,7 +47,6 @@ class FORM extends Component{
             style={{backgroundColor:"black"}}
             title={this.state.user.displayName}
             iconClassNameLeft={'url(' +this.state.user.email.photoURL+ ')'}
-            
             iconElementRight={<FlatButton label="Sign-Out" onClick={(event) => this.logout(event)} />}
           />
         </MuiThemeProvider>
@@ -92,67 +64,42 @@ class FORM extends Component{
         </MuiThemeProvider>
       )
     }
-
-    // return(
-    //   <MuiThemeProvider>
-    //     <AppBar
-    //       style={{backgroundColor:"black"}}
-    //       title="TODO"
-    //       iconClassNameLeft="muidocs-icon-navigation-expand-more"
-    //       iconElementRight={<FlatButton label="Login" onClick={(event) => this.login(event)} />}
-    //     />
-    //   </MuiThemeProvider>
-    // )
-
-
-
   }
 
   TODOList = (props) => {
-    // if (this.state.user){
-    //   return (
-    //     <div className="text-center">
-    //       {props.todos.map(todos => <this.TODOl key={todos.id} {...todos} />)}
-    //     </div>
-    //   );
-    // }
-    // else{
-    //   return(
-    //     <div></div>
-    //   );
-    // }
-    // console.log("------------")
-    // console.log(this.state.messages)
-    // console.log("------------")
+    if (this.state.user){
+      return(
+          <div className="text-center">
+            {props.todos.map(todos => <this.TODOl key={todos.id} {...todos} />)}
+          </div>
+      )
+    }
+    else{
+      return(
+        <div>
 
-    return (
-      <div className="text-center">
-        {props.todos.map(todos => <this.TODOl key={todos.id} {...todos} />)}
-      </div>
-    );
-
-
+        </div>
+      )
+    }
   };
 
   TODOl = (props) =>{
     if(this.state.editing===props.id){
       if(props.render==="true"){
         return(
-          // <MuiThemeProvider>
           <div>
-            <form onSubmit={(event)=>this.Editing( props, event )} >
+            <form onSubmit={(event)=>this.editing( props, event )} >
               <MuiThemeProvider>
                 <TextField onChange={(event)=>this.setState({todov: event.target.value})} hintText={props.text}/>
               </MuiThemeProvider>
             </form> 
           </div>
-          // </MuiThemeProvider>
         );
       }
       else if(props.render==="false"){
         return(
           <div style={{margin: '1em'}}>
-              
+            
           </div>
         );
       }
@@ -184,55 +131,30 @@ class FORM extends Component{
   };
   
   CheckBox = (props) =>{
-
     if(props.todos.status === "true"){
       return(
-        <MuiThemeProvider>
-          {/* <Checkbox checked={props.todos.status === "true" } onClick={(event) => this.modifyTODO(props, event)} /> */}
-  
-          
+        <MuiThemeProvider>     
           <FlatButton icon={<Done/>} onClick={(event) => this.modifyTODO(props, event)}/>
-  
-  
         </MuiThemeProvider>
       )
     }
     else{
       return(
-        <MuiThemeProvider>
-          {/* <Checkbox checked={props.todos.status === "true" } onClick={(event) => this.modifyTODO(props, event)} /> */}
-  
-          
+        <MuiThemeProvider>   
           <FlatButton icon={<Active/>} onClick={(event) => this.modifyTODO(props, event)}/>
-  
-  
         </MuiThemeProvider>
       )
     }
-
-
-
-    // return(
-    //   <MuiThemeProvider>
-    //     <Checkbox checked={props.todos.status === "true" } onClick={(event) => this.modifyTODO(props, event)} />
-
-        
-    //     <FlatButton icon={<DoneAll/>}  onClick={(event) => this.modifyTODO(props, event)}/>
-
-
-    //   </MuiThemeProvider>
-    // )
   }
 
   CheckAll = (props) =>{
     var count=0;
-    
+
     for(var i=0;i<props.todos.length;i++){
       if(props.todos[i].status==="true"){
         count++;
       }
     }
-
     if( count === props.todos.length && count>0){
       return(
         <MuiThemeProvider>
@@ -251,8 +173,6 @@ class FORM extends Component{
 
   BottomBar = (props) =>{
     var count=0;
-
-
 
     for(var i=0;i<props.todos.length;i++){
       if(props.todos[i].status==="false"){
@@ -285,8 +205,19 @@ class FORM extends Component{
       );
     }
 
-    
   };
+
+  login = (event) =>{
+    event.preventDefault();
+    var provider = new firebase.auth.GoogleAuthProvider();
+    firebase.auth().signInWithPopup(provider);
+  }
+
+  logout = (event) =>{
+    event.preventDefault();
+    firebase.auth().signOut();
+    this.setState({messages: []})
+  }
 
   markAll = (props,arc) =>{
     var itemsRef = fire.database().ref('todos');
@@ -305,11 +236,11 @@ class FORM extends Component{
     }
 
     this.setState({messages: arraym });
-    this.arc1(props, this.state.stat.statt);
+    this.changeRenderDB(props, this.state.stat.statt);
 
   }
 
-  Editing = (props,event) =>{
+  editing = (props,event) =>{
     event.preventDefault();
     var textA;
 
@@ -336,7 +267,7 @@ class FORM extends Component{
     }
   }
 
-  arc1 = (props, act) =>{
+  changeRenderDB = (props, act) =>{
     var itemsRef = fire.database().ref('todos');
     var itemsRef2 = fire.database().ref('stat');
     var arraym = this.state.messages;
@@ -406,7 +337,7 @@ class FORM extends Component{
   selectTODO = (props, act, event) => {
     event.preventDefault();
 
-    this.arc1(props, act);
+    this.changeRenderDB(props, act);
   }
 
   deleteTODO = (itemId, event) => {
@@ -448,7 +379,6 @@ class FORM extends Component{
           render: rfalse
         } );
       }
-
       else if(this.state.messages[i].status==="false"){
         itemsRef.child(this.state.messages[i].id).update({
           status: props.todos[i].status,
@@ -515,7 +445,6 @@ class FORM extends Component{
         this.setState({messages: arraym });
       }
     }
-    
   }
 
   saveTODO = (event) => {
@@ -538,126 +467,67 @@ class FORM extends Component{
     this.setState({ todov: ""});
   }
 
-  arc4 = () =>{
-
-    console.log("arc4");
-
-    let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-
-    messagesRef.on('child_added', snapshot => {
-      var arc1 = Object.values(snapshot.child('status').val());
-      var arc2 = Object.values(snapshot.child('text').val());
-      var arc3 = Object.values(snapshot.child('render').val());
-      
-      var textS = arc1.join().split(',').join('')
-      var textT = arc2.join().split(',').join('')
-      var textR = arc3.join().split(',').join('')
-
-      let message = { 
-        text: textT,
-        status: textS,
-        render: textR,
-        id: snapshot.key 
-      };
-
-      this.setState({ messages: [message].concat(this.state.messages) });
-    })
-  }
-
   componentWillMount(){
-    let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-    let messagesRef2 = fire.database().ref('stat');
-
-    messagesRef.on('child_added', snapshot => {
-      var arc1 = Object.values(snapshot.child('status').val());
-      var arc2 = Object.values(snapshot.child('text').val());
-      var arc3 = Object.values(snapshot.child('render').val());
-      
-      var textS = arc1.join().split(',').join('')
-      var textT = arc2.join().split(',').join('')
-      var textR = arc3.join().split(',').join('')
-
-      let message = { 
-        text: textT,
-        status: textS,
-        render: textR,
-        id: snapshot.key 
-      };
-
-      this.setState({ messages: [message].concat(this.state.messages) });
-    })
-
-    
-    messagesRef2.on('child_added', snapshot => {
-      var arc1 = Object.values(snapshot.child('arc').val());
-      var textS = arc1.join().split(',').join('')
-
-      let statm = { 
-        statt: textS,
-        id: snapshot.key 
-      };
-      
-      this.setState({ stat: statm });
-    })
-
-
     firebase.auth().onAuthStateChanged(user => {
       if (user){
-        
-        // console.log(this.state.messages)
-        // console.log("user true")
-        // console.log(message)
-        // this.arc4();
         this.setState({user: user})
+
+        let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
+        let messagesRef2 = fire.database().ref('stat');
+    
+        messagesRef.on('child_added', snapshot => {
+          var arc1 = Object.values(snapshot.child('status').val());
+          var arc2 = Object.values(snapshot.child('text').val());
+          var arc3 = Object.values(snapshot.child('render').val());
+          
+          var textS = arc1.join().split(',').join('')
+          var textT = arc2.join().split(',').join('')
+          var textR = arc3.join().split(',').join('')
+    
+          let message = { 
+            text: textT,
+            status: textS,
+            render: textR,
+            id: snapshot.key 
+          };
+    
+          this.setState({ messages: [message].concat(this.state.messages) });
+        })
+        
+        messagesRef2.on('child_added', snapshot => {
+          var arc1 = Object.values(snapshot.child('arc').val());
+          var textS = arc1.join().split(',').join('')
+    
+          let statm = { 
+            statt: textS,
+            id: snapshot.key 
+          };
+          
+          this.setState({ stat: statm });
+        })
       }
       else{
-        // console.log("user false")
-        // console.log(this.state.messages)
         this.setState({user: null})
       }
     })
-
   }
-
-
 
   render() {
     return (
       <div className="App">
-        {/* <MuiThemeProvider>
-          <AppBar
-            style={{backgroundColor:"black"}}
-            title="TODO"
-            iconClassNameRight="muidocs-icon-navigation-expand-more"
-          />
-        </MuiThemeProvider> */}
         <this.HEADER/>
-
         <this.AddBOx/>
-
-        {/* <MuiThemeProvider>
-        <form onSubmit={this.saveTODO}>
-          <this.CheckAll todos={this.state.messages} />
-          <TextField style={{marginBottom:"40px", marginTop:"30px"}} value={this.state.todov} onChange={(event)=>this.setState({todov: event.target.value})} hintText="Arc"  />
-        </form> 
-        </MuiThemeProvider> */}
-
-        {/* <hd/> */}
-        
         <this.TODOList todos={this.state.messages}/>
         <this.BottomBar todos={this.state.messages}/>
       </div>
     );
   }
-
 }
 
 class App extends Component {
   render() {
     return (
       <div>
-        
-        {/* iconElementRight={<FlatButton label="Save" onClick={() => this.login()} />} */}
         <FORM />
       </div>
     );
