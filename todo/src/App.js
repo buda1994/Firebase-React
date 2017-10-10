@@ -17,7 +17,7 @@ class ToDoReact extends Component {
   state = {
     newTodo: '',
     todos: [],
-    stat: "All",
+    event: [],
     editing: "",
     user: ""
   }
@@ -141,20 +141,9 @@ class ToDoReact extends Component {
     return null;
   };
 
-  CheckBox = (props) => {
-    var icon = ""
-    icon = props.todos.status === "true" ? <Done /> : <Active />;
-
-    return (
-      <MuiThemeProvider>
-        <FlatButton icon={icon} onClick={(event) => this.modifyItem(props, event)} />
-      </MuiThemeProvider>
-    );
-  }
-
   CheckAll = (props) => {
     var count = 0;
-    var statusTemp = "true"
+    var statusCheck = "true"
 
     for (var i = 0; i < props.todos.length; i++) {
       if (props.todos[i].status === "true") {
@@ -163,12 +152,12 @@ class ToDoReact extends Component {
     }
 
     if (count === props.todos.length && count > 0) {
-      statusTemp = "false";
+      statusCheck = "false";
     }
 
     return (
       <MuiThemeProvider>
-        <FlatButton icon={<DoneAll />} onClick={() => this.markAll(props, statusTemp)} />
+        <FlatButton icon={<DoneAll />} onClick={() => this.markAll(props, statusCheck)} />
       </MuiThemeProvider>
     );
 
@@ -176,7 +165,7 @@ class ToDoReact extends Component {
 
   markAll = (props, statusMark) => {
     var itemsRef = fire.database().ref('todos');
-    var arrayTemp = this.state.todos;
+    var tempState = this.state.todos;
 
     for (var i = 0; i < this.state.todos.length; i++) {
       itemsRef.child(this.state.todos[i].id).update({
@@ -187,11 +176,11 @@ class ToDoReact extends Component {
     }
 
     for (i = 0; i < this.state.todos.length; i++) {
-      arrayTemp[i].status = statusMark.toString();
+      tempState[i].status = statusMark.toString();
     }
 
-    this.setState({ todos: arrayTemp });
-    this.changeRenderDB(props, this.state.stat.statt);
+    this.setState({ todos: tempState });
+    this.changeRenderDB(props, this.state.event.eventName);
   }
 
   login = (event) => {
@@ -206,25 +195,29 @@ class ToDoReact extends Component {
     this.setState({ todos: [] })
   }
 
+  CheckBox = (props) => {
+    var icon = props.todos.status === "true" ? <Done /> : <Active />;
+
+    return (
+      <MuiThemeProvider>
+        <FlatButton icon={icon} onClick={(event) => this.modifyItem(props, event)} />
+      </MuiThemeProvider>
+    );
+  }
+
   modifyItem = (props, event) => {
     var renderStatus;
     var itemsRef = fire.database().ref('todos');
     var status = props.todos.status === "false" ? "true" : 'false';
+    var tempState = this.state.todos;
 
-    if (this.state.stat.statt === "All") {
-      renderStatus = "true"
-    }
-    else if (this.state.stat.statt === "Act" && status === "false") {
-      renderStatus = "true"
-    }
-    else if (this.state.stat.statt === "Act" && status === "true") {
-      renderStatus = "false"
-    }
-    else if (this.state.stat.statt === "Com" && status === "false") {
-      renderStatus = "false"
-    }
-    else if (this.state.stat.statt === "Com" && status === "true") {
-      renderStatus = "true"
+    switch (this.state.event.eventName) {
+      case "All":
+        renderStatus = "true"
+        break;
+      default:
+        renderStatus = "false"
+        break;
     }
 
     itemsRef.child(props.todos.id).update({
@@ -233,13 +226,12 @@ class ToDoReact extends Component {
       render: renderStatus
     });
 
-    var arrayTemp = this.state.todos;
     for (var i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].id === props.todos.id) {
-        arrayTemp[i].status = status;
-        arrayTemp[i].render = renderStatus;
-        arrayTemp[i].text = props.todos.text;
-        this.setState({ todos: arrayTemp });
+        tempState[i].status = status;
+        tempState[i].render = renderStatus;
+        tempState[i].text = props.todos.text;
+        this.setState({ todos: tempState });
       }
     }
   }
@@ -248,6 +240,7 @@ class ToDoReact extends Component {
     event.preventDefault();
     var textTemp = this.state.newTodo === "" ? props.text : this.state.newTodo;
     var itemsRef = fire.database().ref('todos');
+    var tempState = this.state.todos;
 
     itemsRef.child(props.id).update({
       status: props.status,
@@ -255,79 +248,81 @@ class ToDoReact extends Component {
       render: props.render
     });
 
-    var arrayTemp = this.state.todos;
     for (var i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].id === props.id) {
-        arrayTemp[i].text = textTemp;
-        this.setState({ todos: arrayTemp, editing: " ", newTodo: "" });
+        tempState[i].text = textTemp;
+        this.setState({ todos: tempState, editing: " ", newTodo: "" });
       }
     }
   }
 
   changeRenderDB = (props, act) => {
     var itemsRef = fire.database().ref('todos');
-    var itemsRef2 = fire.database().ref('stat');
-    var arrayTemp = this.state.todos;
-    let statTemp;
+    var itemsRef2 = fire.database().ref('event');
+    var todosTempState = this.state.todos;
+    let eventTempState;
 
-    if (act === "All") {
-      for (var i = 0; i < this.state.todos.length; i++) {
-        itemsRef.child(this.state.todos[i].id).update({
-          status: props.todos[i].status,
-          text: props.todos[i].text,
-          render: "true"
-        });
-      }
-
-      statTemp = {
-        statt: "All",
-        id: this.state.stat.id
-      };
-
-      for (i = 0; i < this.state.todos.length; i++) {
-        arrayTemp[i].render = "true";
-        this.setState({ todos: arrayTemp, stat: statTemp });
-      }
-
-      itemsRef2.child(this.state.stat.id).update({
-        state: "All",
-      });
-    }
-    else if (act === "Act") {
-      this.rendersItem(props, "true", "false", "Act");
-
-      itemsRef2.child(this.state.stat.id).update({
-        state: "Act",
-      });
-    }
-    else if (act === "Com") {
-      this.rendersItem(props, "false", "true", "Com");
-
-      itemsRef2.child(this.state.stat.id).update({
-        state: "Com",
-      });
-    }
-    else if (act === "Clc") {
-      arrayTemp = this.state.todos;
-
-      for (i = 0; i < this.state.todos.length; i++) {
-        if (this.state.todos[i].status === "true") {
-          itemsRef.child(this.state.todos[i].id).remove(function (error) {
-            if (error) {
-              console.log(error);
-            }
+    switch (act) {
+      case "All":
+        for (var i = 0; i < this.state.todos.length; i++) {
+          itemsRef.child(this.state.todos[i].id).update({
+            status: props.todos[i].status,
+            text: props.todos[i].text,
+            render: "true"
           });
         }
-      }
 
-      for (i = this.state.todos.length - 1; i >= 0; i--) {
-        if (this.state.todos[i].status === "true") {
-          arrayTemp.splice(i, 1);
+        eventTempState = {
+          eventName: "All",
+          id: this.state.event.id
+        };
+
+        for (i = 0; i < this.state.todos.length; i++) {
+          todosTempState[i].render = "true";
+          this.setState({ todos: todosTempState, event: eventTempState });
         }
-      }
 
-      this.setState({ todos: arrayTemp });
+        itemsRef2.child(this.state.event.id).update({
+          state: "All",
+        });
+        break;
+      case "Act":
+        this.rendersItem(props, "true", "false", "Act");
+
+        itemsRef2.child(this.state.event.id).update({
+          state: "Act",
+        });
+        break;
+      case "Com":
+        this.rendersItem(props, "false", "true", "Com");
+
+        itemsRef2.child(this.state.event.id).update({
+          state: "Com",
+        });
+        break;
+      default:
+        todosTempState = this.state.todos;
+
+        for (i = 0; i < this.state.todos.length; i++) {
+          if (this.state.todos[i].status === "true") {
+            itemsRef.child(this.state.todos[i].id).remove(function (error) {
+              if (error) {
+                console.log(error);
+              }
+            });
+          }
+        }
+
+        for (i = this.state.todos.length - 1; i >= 0; i--) {
+          if (this.state.todos[i].status === "true") {
+            todosTempState.splice(i, 1);
+          }
+        }
+
+        this.setState({ todos: todosTempState });
+        break;
     }
+
   }
 
   selectItems = (props, act, event) => {
@@ -345,22 +340,22 @@ class ToDoReact extends Component {
       }
     });
 
-    var arrayTemp = this.state.todos;
+    var tempState = this.state.todos;
     for (var i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].id === itemId.id) {
-        arrayTemp.splice(i, 1);
-        this.setState({ todos: arrayTemp });
+        tempState.splice(i, 1);
+        this.setState({ todos: tempState });
       }
     }
   }
 
   rendersItem = (props, renderTrue, renderFalse, stat) => {
     var itemsRef = fire.database().ref('todos');
-    var arrayTemp = this.state.todos;
+    var todosTempState = this.state.todos;
 
-    let statTemp = {
-      statt: stat,
-      id: this.state.stat.id
+    let statTempState = {
+      eventName: stat,
+      id: this.state.event.id
     };
 
     for (var i = 0; i < this.state.todos.length; i++) {
@@ -382,12 +377,12 @@ class ToDoReact extends Component {
 
     for (i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].status === "true") {
-        arrayTemp[i].render = renderFalse;
-        this.setState({ todos: arrayTemp, stat: statTemp });
+        todosTempState[i].render = renderFalse;
+        this.setState({ todos: todosTempState, event: statTempState });
       }
       else if (this.state.todos[i].status === "false") {
-        arrayTemp[i].render = renderTrue;
-        this.setState({ todos: arrayTemp, stat: statTemp });
+        todosTempState[i].render = renderTrue;
+        this.setState({ todos: todosTempState, event: statTempState });
       }
     }
 
@@ -395,9 +390,7 @@ class ToDoReact extends Component {
 
   saveItem = (event) => {
     event.preventDefault();
-
-    var renderTemp = ""
-    renderTemp = this.state.stat.statt === "Com" ? "false" : 'true';
+    var renderTemp = this.state.event.eventName === "Com" ? "false" : 'true';
 
     fire.database().ref('todos').push({
       status: "false",
@@ -414,7 +407,7 @@ class ToDoReact extends Component {
         this.setState({ user: user })
 
         let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-        let messagesRef2 = fire.database().ref('stat');
+        let messagesRef2 = fire.database().ref('event');
 
         messagesRef.on('child_added', snapshot => {
           var statusDB = Object.values(snapshot.child('status').val());
@@ -425,26 +418,26 @@ class ToDoReact extends Component {
           var textText = textDB.join().split(',').join('')
           var textRender = renderDB.join().split(',').join('')
 
-          let message = {
+          let todosTempState = {
             text: textText,
             status: textStatus,
             render: textRender,
             id: snapshot.key
           };
 
-          this.setState({ todos: [message].concat(this.state.todos) });
+          this.setState({ todos: [todosTempState].concat(this.state.todos) });
         })
 
         messagesRef2.on('child_added', snapshot => {
-          var statusDB = Object.values(snapshot.child('state').val());
+          var statusDB = Object.values(snapshot.child('eventName').val());
           var textStat = statusDB.join().split(',').join('')
 
-          let statTemp = {
-            statt: textStat,
+          let eventTempState = {
+            eventName: textStat,
             id: snapshot.key
           };
 
-          this.setState({ stat: statTemp });
+          this.setState({ event: eventTempState });
         })
       }
       else {
