@@ -206,19 +206,10 @@ class ToDoReact extends Component {
   }
 
   modifyItem = (props, event) => {
-    var renderStatus;
     var itemsRef = fire.database().ref('todos');
     var status = props.todos.status === "false" ? "true" : 'false';
     var tempState = this.state.todos;
-
-    switch (this.state.event.eventName) {
-      case "All":
-        renderStatus = "true"
-        break;
-      default:
-        renderStatus = "false"
-        break;
-    }
+    var renderStatus = this.state.event.eventName === "All" ? "true" : "false";
 
     itemsRef.child(props.todos.id).update({
       status: status,
