@@ -73,8 +73,8 @@ class ToDoReact extends Component {
   };
 
   TodoElement = (props) => {
-    if (this.state.editingID === props.id) {
-      if (this.state.event === "All" || (this.state.event === "Act" && props.status === "false") || (this.state.event === "Com" && props.status === "true")) {
+    if (this.state.event === "All" || (this.state.event === "Act" && props.status === "false") || (this.state.event === "Com" && props.status === "true")) {
+      if (this.state.editingID === props.id) {
         return (
           <div>
             <form onSubmit={(event) => this.editItem(props, event)} >
@@ -85,9 +85,7 @@ class ToDoReact extends Component {
           </div>
         );
       }
-    }
 
-    if (this.state.event === "All" || (this.state.event === "Act" && props.status === "false") || (this.state.event === "Com" && props.status === "true")) {
       return (
         <div >
           <div style={{ display: 'inline-block', width: "25%" }}>
