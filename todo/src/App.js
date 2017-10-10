@@ -15,10 +15,11 @@ import Avatar from 'material-ui/Avatar';
 
 class ToDoReact extends Component {
   state = {
-    newTodo: '',
+    newTodo: "",
+    editTodo: "",
     todos: [],
     event: [],
-    editing: "",
+    editingID: "",
     user: ""
   }
 
@@ -73,13 +74,13 @@ class ToDoReact extends Component {
   };
 
   TodoElement = (props) => {
-    if (this.state.editing === props.id) {
+    if (this.state.editingID === props.id) {
       if (props.render === "true") {
         return (
           <div>
             <form onSubmit={(event) => this.editItem(props, event)} >
               <MuiThemeProvider>
-                <TextField onChange={(event) => this.setState({ newTodo: event.target.value })} hintText={props.text} />
+                <TextField onChange={(event) => this.setState({ editTodo: event.target.value })} hintText={props.text} />
               </MuiThemeProvider>
             </form>
           </div>
@@ -94,7 +95,7 @@ class ToDoReact extends Component {
             <this.CheckBox todos={props} />
           </div>
           <div style={{ display: 'inline-block', width: "50%" }}>
-            <p onDoubleClick={() => this.setState({ editing: props.id })} > {props.text} </p>
+            <p onDoubleClick={() => this.setState({ editingID: props.id })} > {props.text} </p>
           </div>
           <div style={{ display: 'inline-block', width: "25%" }}>
             <MuiThemeProvider>
@@ -229,7 +230,7 @@ class ToDoReact extends Component {
 
   editItem = (props, event) => {
     event.preventDefault();
-    var textTemp = this.state.newTodo === "" ? props.text : this.state.newTodo;
+    var textTemp = this.state.editTodo === "" ? props.text : this.state.editTodo;
     var itemsRef = fire.database().ref('todos');
     var todosTempState = this.state.todos;
 
@@ -242,7 +243,7 @@ class ToDoReact extends Component {
     for (var i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].id === props.id) {
         todosTempState[i].text = textTemp;
-        this.setState({ todos: todosTempState, editing: " ", newTodo: "" });
+        this.setState({ todos: todosTempState, editingID: "", editTodo: "" });
       }
     }
   }
