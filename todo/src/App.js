@@ -13,10 +13,10 @@ import Active from 'material-ui/svg-icons/image/crop-square';
 import firebase from 'firebase'
 import Avatar from 'material-ui/Avatar';
 
-class FORM extends Component {
+class ToDoReact extends Component {
   state = {
-    todov: '',
-    messages: [],
+    newTodo: '',
+    todos: [],
     stat: "All",
     editing: "",
     user: ""
@@ -27,8 +27,8 @@ class FORM extends Component {
       return (
         <MuiThemeProvider>
           <form onSubmit={this.saveItem}>
-            <this.CheckAll todos={this.state.messages} />
-            <TextField style={{ marginBottom: "40px", marginTop: "30px" }} value={this.state.todov} onChange={(event) => this.setState({ todov: event.target.value })} hintText="What needs to be done?" />
+            <this.CheckAll todos={this.state.todos} />
+            <TextField style={{ marginBottom: "40px", marginTop: "30px" }} value={this.state.newTodo} onChange={(event) => this.setState({ newTodo: event.target.value })} hintText="What needs to be done?" />
           </form>
         </MuiThemeProvider>
       );
@@ -39,13 +39,13 @@ class FORM extends Component {
 
   Header = () => {
     var icon = null
-    var title = "TODO"
-    var eleRight = <FlatButton label="Sign-In" onClick={(event) => this.login(event)} />;
+    var title = "TODO List"
+    var elementRight = <FlatButton label="Sign-In" onClick={(event) => this.login(event)} />;
 
     if (this.state.user) {
       icon = <Avatar src={this.state.user.photoURL} />
       title = this.state.user.displayName;
-      eleRight = <FlatButton label="Sign-Out" onClick={(event) => this.logout(event)} />;
+      elementRight = <FlatButton label="Sign-Out" onClick={(event) => this.logout(event)} />;
     }
 
     return (
@@ -54,7 +54,7 @@ class FORM extends Component {
           style={{ backgroundColor: "black" }}
           iconElementLeft={icon}
           title={title}
-          iconElementRight={eleRight}
+          iconElementRight={elementRight}
         />
       </MuiThemeProvider>
     );
@@ -79,7 +79,7 @@ class FORM extends Component {
           <div>
             <form onSubmit={(event) => this.editItem(props, event)} >
               <MuiThemeProvider>
-                <TextField onChange={(event) => this.setState({ todov: event.target.value })} hintText={props.text} />
+                <TextField onChange={(event) => this.setState({ newTodo: event.target.value })} hintText={props.text} />
               </MuiThemeProvider>
             </form>
           </div>
@@ -119,7 +119,8 @@ class FORM extends Component {
 
     if (props.todos.length !== 0) {
       return (
-        <div style={{ marginTop: "50px", margin: '1em' }}>
+        <div style={{ margin: '1em', marginTop: '45px' }}>
+          {/* <div> */}
           <MuiThemeProvider>
             <Toolbar style={{ backgroundColor: "black" }}>
               <ToolbarGroup>
@@ -175,21 +176,21 @@ class FORM extends Component {
 
   markAll = (props, statusMark) => {
     var itemsRef = fire.database().ref('todos');
-    var arrayTemp = this.state.messages;
+    var arrayTemp = this.state.todos;
 
-    for (var i = 0; i < this.state.messages.length; i++) {
-      itemsRef.child(this.state.messages[i].id).update({
+    for (var i = 0; i < this.state.todos.length; i++) {
+      itemsRef.child(this.state.todos[i].id).update({
         status: statusMark.toString(),
         text: props.todos[i].text,
         render: props.todos[i].render
       });
     }
 
-    for (i = 0; i < this.state.messages.length; i++) {
+    for (i = 0; i < this.state.todos.length; i++) {
       arrayTemp[i].status = statusMark.toString();
     }
 
-    this.setState({ messages: arrayTemp });
+    this.setState({ todos: arrayTemp });
     this.changeRenderDB(props, this.state.stat.statt);
   }
 
@@ -202,167 +203,13 @@ class FORM extends Component {
   logout = (event) => {
     event.preventDefault();
     firebase.auth().signOut();
-    this.setState({ messages: [] })
-  }
-
-  editItem = (props, event) => {
-    event.preventDefault();
-    var textTemp;
-
-    textTemp = this.state.todov === "" ? props.text : this.state.todov;
-
-    var itemsRef = fire.database().ref('todos');
-    itemsRef.child(props.id).update({
-      status: props.status,
-      text: textTemp,
-      render: props.render
-    });
-
-    var arrayTemp = this.state.messages;
-    for (var i = 0; i < this.state.messages.length; i++) {
-      if (this.state.messages[i].id === props.id) {
-        arrayTemp[i].text = textTemp;
-        this.setState({ messages: arrayTemp, editing: " ", todov: "" });
-      }
-    }
-  }
-
-  changeRenderDB = (props, act) => {
-    var itemsRef = fire.database().ref('todos');
-    var itemsRef2 = fire.database().ref('stat');
-    var arrayTemp = this.state.messages;
-    let stattemp;
-
-    if (act === "All") {
-      for (var i = 0; i < this.state.messages.length; i++) {
-        itemsRef.child(this.state.messages[i].id).update({
-          status: props.todos[i].status,
-          text: props.todos[i].text,
-          render: "true"
-        });
-      }
-
-      stattemp = {
-        statt: "All",
-        id: this.state.stat.id
-      };
-
-      for (i = 0; i < this.state.messages.length; i++) {
-        arrayTemp[i].render = "true";
-        this.setState({ messages: arrayTemp, stat: stattemp });
-      }
-
-      itemsRef2.child(this.state.stat.id).update({
-        state: "All",
-      });
-    }
-    else if (act === "Act") {
-      this.rendersItem(props, "true", "false", "Act");
-
-      itemsRef2.child(this.state.stat.id).update({
-        state: "Act",
-      });
-    }
-    else if (act === "Com") {
-      this.rendersItem(props, "false", "true", "Com");
-
-      itemsRef2.child(this.state.stat.id).update({
-        state: "Com",
-      });
-    }
-    else if (act === "Clc") {
-      arrayTemp = this.state.messages;
-
-      for (i = 0; i < this.state.messages.length; i++) {
-        if (this.state.messages[i].status === "true") {
-          itemsRef.child(this.state.messages[i].id).remove(function (error) {
-            if (error) {
-              console.log(error);
-            }
-          });
-        }
-      }
-
-      for (i = this.state.messages.length - 1; i >= 0; i--) {
-        if (this.state.messages[i].status === "true") {
-          arrayTemp.splice(i, 1);
-        }
-      }
-
-      this.setState({ messages: arrayTemp });
-    }
-  }
-
-  selectItems = (props, act, event) => {
-    event.preventDefault();
-    this.changeRenderDB(props, act);
-  }
-
-  deleteItem = (itemId, event) => {
-    event.preventDefault();
-
-    var itemsRef = fire.database().ref('todos');
-    itemsRef.child(itemId.id).remove(function (error) {
-      if (error) {
-        console.log(error);
-      }
-    });
-
-    var arrayTemp = this.state.messages;
-    for (var i = 0; i < this.state.messages.length; i++) {
-      if (this.state.messages[i].id === itemId.id) {
-        arrayTemp.splice(i, 1);
-        this.setState({ messages: arrayTemp });
-      }
-    }
-
-  }
-
-  rendersItem = (props, rtrue, rfalse, stat) => {
-    var itemsRef = fire.database().ref('todos');
-    var arrayTemp = this.state.messages;
-
-    let statTemp = {
-      statt: stat,
-      id: this.state.stat.id
-    };
-
-    for (var i = 0; i < this.state.messages.length; i++) {
-      if (this.state.messages[i].status === "true") {
-        itemsRef.child(this.state.messages[i].id).update({
-          status: props.todos[i].status,
-          text: props.todos[i].text,
-          render: rfalse
-        });
-      }
-      else if (this.state.messages[i].status === "false") {
-        itemsRef.child(this.state.messages[i].id).update({
-          status: props.todos[i].status,
-          text: props.todos[i].text,
-          render: rtrue
-        });
-      }
-    }
-
-    for (i = 0; i < this.state.messages.length; i++) {
-      if (this.state.messages[i].status === "true") {
-        arrayTemp[i].render = rfalse;
-        this.setState({ messages: arrayTemp, stat: statTemp });
-      }
-      else if (this.state.messages[i].status === "false") {
-        arrayTemp[i].render = rtrue;
-        this.setState({ messages: arrayTemp, stat: statTemp });
-      }
-    }
-
+    this.setState({ todos: [] })
   }
 
   modifyItem = (props, event) => {
-    var status;
     var renderStatus;
     var itemsRef = fire.database().ref('todos');
-
-    status = props.todos.status === "false" ? "true" : 'false';
+    var status = props.todos.status === "false" ? "true" : 'false';
 
     if (this.state.stat.statt === "All") {
       renderStatus = "true"
@@ -386,14 +233,164 @@ class FORM extends Component {
       render: renderStatus
     });
 
-    var arrayTemp = this.state.messages;
-    for (var i = 0; i < this.state.messages.length; i++) {
-      if (this.state.messages[i].id === props.todos.id) {
+    var arrayTemp = this.state.todos;
+    for (var i = 0; i < this.state.todos.length; i++) {
+      if (this.state.todos[i].id === props.todos.id) {
         arrayTemp[i].status = status;
         arrayTemp[i].render = renderStatus;
-        this.setState({ messages: arrayTemp });
+        arrayTemp[i].text = props.todos.text;
+        this.setState({ todos: arrayTemp });
       }
     }
+  }
+
+  editItem = (props, event) => {
+    event.preventDefault();
+    var textTemp = this.state.newTodo === "" ? props.text : this.state.newTodo;
+    var itemsRef = fire.database().ref('todos');
+
+    itemsRef.child(props.id).update({
+      status: props.status,
+      text: textTemp,
+      render: props.render
+    });
+
+    var arrayTemp = this.state.todos;
+    for (var i = 0; i < this.state.todos.length; i++) {
+      if (this.state.todos[i].id === props.id) {
+        arrayTemp[i].text = textTemp;
+        this.setState({ todos: arrayTemp, editing: " ", newTodo: "" });
+      }
+    }
+  }
+
+  changeRenderDB = (props, act) => {
+    var itemsRef = fire.database().ref('todos');
+    var itemsRef2 = fire.database().ref('stat');
+    var arrayTemp = this.state.todos;
+    let statTemp;
+
+    if (act === "All") {
+      for (var i = 0; i < this.state.todos.length; i++) {
+        itemsRef.child(this.state.todos[i].id).update({
+          status: props.todos[i].status,
+          text: props.todos[i].text,
+          render: "true"
+        });
+      }
+
+      statTemp = {
+        statt: "All",
+        id: this.state.stat.id
+      };
+
+      for (i = 0; i < this.state.todos.length; i++) {
+        arrayTemp[i].render = "true";
+        this.setState({ todos: arrayTemp, stat: statTemp });
+      }
+
+      itemsRef2.child(this.state.stat.id).update({
+        state: "All",
+      });
+    }
+    else if (act === "Act") {
+      this.rendersItem(props, "true", "false", "Act");
+
+      itemsRef2.child(this.state.stat.id).update({
+        state: "Act",
+      });
+    }
+    else if (act === "Com") {
+      this.rendersItem(props, "false", "true", "Com");
+
+      itemsRef2.child(this.state.stat.id).update({
+        state: "Com",
+      });
+    }
+    else if (act === "Clc") {
+      arrayTemp = this.state.todos;
+
+      for (i = 0; i < this.state.todos.length; i++) {
+        if (this.state.todos[i].status === "true") {
+          itemsRef.child(this.state.todos[i].id).remove(function (error) {
+            if (error) {
+              console.log(error);
+            }
+          });
+        }
+      }
+
+      for (i = this.state.todos.length - 1; i >= 0; i--) {
+        if (this.state.todos[i].status === "true") {
+          arrayTemp.splice(i, 1);
+        }
+      }
+
+      this.setState({ todos: arrayTemp });
+    }
+  }
+
+  selectItems = (props, act, event) => {
+    event.preventDefault();
+    this.changeRenderDB(props, act);
+  }
+
+  deleteItem = (itemId, event) => {
+    event.preventDefault();
+
+    var itemsRef = fire.database().ref('todos');
+    itemsRef.child(itemId.id).remove(function (error) {
+      if (error) {
+        console.log(error);
+      }
+    });
+
+    var arrayTemp = this.state.todos;
+    for (var i = 0; i < this.state.todos.length; i++) {
+      if (this.state.todos[i].id === itemId.id) {
+        arrayTemp.splice(i, 1);
+        this.setState({ todos: arrayTemp });
+      }
+    }
+  }
+
+  rendersItem = (props, renderTrue, renderFalse, stat) => {
+    var itemsRef = fire.database().ref('todos');
+    var arrayTemp = this.state.todos;
+
+    let statTemp = {
+      statt: stat,
+      id: this.state.stat.id
+    };
+
+    for (var i = 0; i < this.state.todos.length; i++) {
+      if (this.state.todos[i].status === "true") {
+        itemsRef.child(this.state.todos[i].id).update({
+          status: props.todos[i].status,
+          text: props.todos[i].text,
+          render: renderFalse
+        });
+      }
+      else if (this.state.todos[i].status === "false") {
+        itemsRef.child(this.state.todos[i].id).update({
+          status: props.todos[i].status,
+          text: props.todos[i].text,
+          render: renderTrue
+        });
+      }
+    }
+
+    for (i = 0; i < this.state.todos.length; i++) {
+      if (this.state.todos[i].status === "true") {
+        arrayTemp[i].render = renderFalse;
+        this.setState({ todos: arrayTemp, stat: statTemp });
+      }
+      else if (this.state.todos[i].status === "false") {
+        arrayTemp[i].render = renderTrue;
+        this.setState({ todos: arrayTemp, stat: statTemp });
+      }
+    }
+
   }
 
   saveItem = (event) => {
@@ -404,11 +401,11 @@ class FORM extends Component {
 
     fire.database().ref('todos').push({
       status: "false",
-      text: this.state.todov,
+      text: this.state.newTodo,
       render: renderTemp,
     });
 
-    this.setState({ todov: "" });
+    this.setState({ newTodo: "" });
   }
 
   componentWillMount() {
@@ -435,7 +432,7 @@ class FORM extends Component {
             id: snapshot.key
           };
 
-          this.setState({ messages: [message].concat(this.state.messages) });
+          this.setState({ todos: [message].concat(this.state.todos) });
         })
 
         messagesRef2.on('child_added', snapshot => {
@@ -461,8 +458,8 @@ class FORM extends Component {
       <div className="App">
         <this.Header />
         <this.AddBox />
-        <this.TodoList todos={this.state.messages} />
-        <this.BottomBar todos={this.state.messages} />
+        <this.TodoList todos={this.state.todos} />
+        <this.BottomBar todos={this.state.todos} />
       </div>
     );
   }
@@ -472,7 +469,7 @@ class App extends Component {
   render() {
     return (
       <div>
-        <FORM />
+        <ToDoReact />
       </div>
     );
   }
