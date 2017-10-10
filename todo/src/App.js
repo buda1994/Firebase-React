@@ -174,23 +174,23 @@ class ToDoReact extends Component {
     event.preventDefault();
     var itemsRef = fire.database().ref('todos');
     var todosTempState = this.state.todos;
-    var textinsert = props.text;
-    var statusinsert = props.status === "false" ? "true" : 'false';
+    var textInsert = props.text;
+    var statusInsert = props.status === "false" ? "true" : 'false';
 
-    if(arc === "txtEdit"){
-      textinsert = this.state.editTodo === "" ? props.text : this.state.editTodo;
-      statusinsert = props.status;
+    if (arc === "txtEdit") {
+      textInsert = this.state.editTodo === "" ? props.text : this.state.editTodo;
+      statusInsert = props.status;
     }
 
     itemsRef.child(props.id).update({
-      status: statusinsert,
-      text: textinsert,
+      status: statusInsert,
+      text: textInsert,
     });
 
     for (var i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].id === props.id) {
-        todosTempState[i].status = statusinsert;
-        todosTempState[i].text = textinsert;
+        todosTempState[i].status = statusInsert;
+        todosTempState[i].text = textInsert;
         this.setState({ todos: todosTempState, editingID: "", editTodo: "" });
       }
     }
@@ -199,30 +199,6 @@ class ToDoReact extends Component {
   selectItems = (props, act, event) => {
     event.preventDefault();
     this.setState({ event: act });
-  }
-
-  deleteCompleted = (event) => {
-    event.preventDefault();
-    var itemsRef = fire.database().ref('todos');
-    var todosTempState = this.state.todos;
-
-    for (var i = 0; i < this.state.todos.length; i++) {
-      if (this.state.todos[i].status === "true") {
-        itemsRef.child(this.state.todos[i].id).remove(function (error) {
-          if (error) {
-            console.log(error);
-          }
-        });
-      }
-    }
-
-    for (i = this.state.todos.length - 1; i >= 0; i--) {
-      if (this.state.todos[i].status === "true") {
-        todosTempState.splice(i, 1);
-      }
-    }
-
-    this.setState({ todos: todosTempState });
   }
 
   markAll = (props, statusMark) => {
@@ -257,21 +233,45 @@ class ToDoReact extends Component {
 
   deleteItem = (itemId, event) => {
     event.preventDefault();
-
     var itemsRef = fire.database().ref('todos');
+    var todosTempState = this.state.todos;
+
     itemsRef.child(itemId.id).remove(function (error) {
       if (error) {
         console.log(error);
       }
     });
 
-    var tempState = this.state.todos;
     for (var i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].id === itemId.id) {
-        tempState.splice(i, 1);
-        this.setState({ todos: tempState });
+        todosTempState.splice(i, 1);
+        this.setState({ todos: todosTempState });
       }
     }
+  }
+
+  deleteCompleted = (event) => {
+    event.preventDefault();
+    var itemsRef = fire.database().ref('todos');
+    var todosTempState = this.state.todos;
+
+    for (var i = 0; i < this.state.todos.length; i++) {
+      if (this.state.todos[i].status === "true") {
+        itemsRef.child(this.state.todos[i].id).remove(function (error) {
+          if (error) {
+            console.log(error);
+          }
+        });
+      }
+    }
+
+    for (i = this.state.todos.length - 1; i >= 0; i--) {
+      if (this.state.todos[i].status === "true") {
+        todosTempState.splice(i, 1);
+      }
+    }
+
+    this.setState({ todos: todosTempState });
   }
 
   saveItem = (event) => {
@@ -290,7 +290,7 @@ class ToDoReact extends Component {
       if (user) {
         this.setState({ user: user })
         let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-        
+
         messagesRef.on('child_added', snapshot => {
           var statusDB = Object.values(snapshot.child('status').val());
           var textDB = Object.values(snapshot.child('text').val());
