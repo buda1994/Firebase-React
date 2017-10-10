@@ -165,7 +165,7 @@ class ToDoReact extends Component {
 
   markAll = (props, statusMark) => {
     var itemsRef = fire.database().ref('todos');
-    var tempState = this.state.todos;
+    var todosTempState = this.state.todos;
 
     for (var i = 0; i < this.state.todos.length; i++) {
       itemsRef.child(this.state.todos[i].id).update({
@@ -176,10 +176,10 @@ class ToDoReact extends Component {
     }
 
     for (i = 0; i < this.state.todos.length; i++) {
-      tempState[i].status = statusMark.toString();
+      todosTempState[i].status = statusMark.toString();
     }
 
-    this.setState({ todos: tempState });
+    this.setState({ todos: todosTempState });
     this.changeRenderDB(props, this.state.event.eventName);
   }
 
@@ -208,7 +208,7 @@ class ToDoReact extends Component {
   modifyItem = (props, event) => {
     var itemsRef = fire.database().ref('todos');
     var status = props.todos.status === "false" ? "true" : 'false';
-    var tempState = this.state.todos;
+    var todosTempState = this.state.todos;
     var renderStatus = this.state.event.eventName === "All" ? "true" : "false";
 
     itemsRef.child(props.todos.id).update({
@@ -219,10 +219,10 @@ class ToDoReact extends Component {
 
     for (var i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].id === props.todos.id) {
-        tempState[i].status = status;
-        tempState[i].render = renderStatus;
-        tempState[i].text = props.todos.text;
-        this.setState({ todos: tempState });
+        todosTempState[i].status = status;
+        todosTempState[i].render = renderStatus;
+        todosTempState[i].text = props.todos.text;
+        this.setState({ todos: todosTempState });
       }
     }
   }
@@ -231,7 +231,7 @@ class ToDoReact extends Component {
     event.preventDefault();
     var textTemp = this.state.newTodo === "" ? props.text : this.state.newTodo;
     var itemsRef = fire.database().ref('todos');
-    var tempState = this.state.todos;
+    var todosTempState = this.state.todos;
 
     itemsRef.child(props.id).update({
       status: props.status,
@@ -241,8 +241,8 @@ class ToDoReact extends Component {
 
     for (var i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].id === props.id) {
-        tempState[i].text = textTemp;
-        this.setState({ todos: tempState, editing: " ", newTodo: "" });
+        todosTempState[i].text = textTemp;
+        this.setState({ todos: todosTempState, editing: " ", newTodo: "" });
       }
     }
   }
@@ -381,12 +381,12 @@ class ToDoReact extends Component {
 
   saveItem = (event) => {
     event.preventDefault();
-    var renderTemp = this.state.event.eventName === "Com" ? "false" : 'true';
+    var renderValue = this.state.event.eventName === "Com" ? "false" : 'true';
 
     fire.database().ref('todos').push({
       status: "false",
       text: this.state.newTodo,
-      render: renderTemp,
+      render: renderValue,
     });
 
     this.setState({ newTodo: "" });
