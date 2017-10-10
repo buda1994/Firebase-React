@@ -18,7 +18,7 @@ class ToDoReact extends Component {
     newTodo: "",
     editTodo: "",
     todos: [],
-    event: [],
+    event: "All",
     editingID: "",
     user: ""
   }
@@ -34,7 +34,6 @@ class ToDoReact extends Component {
         </MuiThemeProvider>
       );
     }
-
     return null;
   }
 
@@ -75,7 +74,7 @@ class ToDoReact extends Component {
 
   TodoElement = (props) => {
     if (this.state.editingID === props.id) {
-      if (props.render === "true") {
+      if (this.state.event === "All" || (this.state.event === "Act" && props.status === "false") || (this.state.event === "Com" && props.status === "true")) {
         return (
           <div>
             <form onSubmit={(event) => this.editItem(props, event)} >
@@ -88,7 +87,7 @@ class ToDoReact extends Component {
       }
     }
 
-    if (props.render === "true") {
+    if (this.state.event === "All" || (this.state.event === "Act" && props.status === "false") || (this.state.event === "Com" && props.status === "true")) {
       return (
         <div >
           <div style={{ display: 'inline-block', width: "25%" }}>
@@ -102,39 +101,6 @@ class ToDoReact extends Component {
               <FlatButton icon={<Delete />} onClick={(event) => this.deleteItem(props, event)} />
             </MuiThemeProvider>
           </div>
-        </div>
-      );
-    }
-
-    return null;
-  };
-
-  BottomBar = (props) => {
-    var count = 0;
-
-    for (var i = 0; i < props.todos.length; i++) {
-      if (props.todos[i].status === "false") {
-        count++;
-      }
-    }
-
-    if (props.todos.length !== 0) {
-      return (
-        <div style={{ margin: '1em', marginTop: '45px' }}>
-          {/* <div> */}
-          <MuiThemeProvider>
-            <Toolbar style={{ backgroundColor: "black" }}>
-              <ToolbarGroup>
-                <span style={{ color: "white" }}>{count} items left</span>
-              </ToolbarGroup>
-              <ToolbarGroup>
-                <FlatButton style={{ backgroundColor: "black", color: "white" }} label="All" onClick={(event) => this.selectItems(props, "All", event)} />
-                <FlatButton style={{ backgroundColor: "black", color: "white" }} label="Active" onClick={(event) => this.selectItems(props, "Act", event)} />
-                <FlatButton style={{ backgroundColor: "black", color: "white" }} label="Completed" onClick={(event) => this.selectItems(props, "Com", event)} />
-                <FlatButton style={{ backgroundColor: "black", color: "white" }} label="Clear Completed" onClick={(event) => this.selectItems(props, "Clc", event)} />
-              </ToolbarGroup>
-            </Toolbar>
-          </MuiThemeProvider>
         </div>
       );
     }
@@ -164,6 +130,77 @@ class ToDoReact extends Component {
 
   };
 
+  BottomBar = (props) => {
+    var count = 0;
+
+    for (var i = 0; i < props.todos.length; i++) {
+      if (props.todos[i].status === "false") {
+        count++;
+      }
+    }
+
+    if (props.todos.length !== 0) {
+      return (
+        <div style={{ margin: '1em', marginTop: '45px' }}>
+          <MuiThemeProvider>
+            <Toolbar style={{ backgroundColor: "black" }}>
+              <ToolbarGroup>
+                <span style={{ color: "white" }}>{count} items left</span>
+              </ToolbarGroup>
+              <ToolbarGroup>
+                <FlatButton style={{ backgroundColor: "black", color: "white" }} label="All" onClick={(event) => this.selectItems(props, "All", event)} />
+                <FlatButton style={{ backgroundColor: "black", color: "white" }} label="Active" onClick={(event) => this.selectItems(props, "Act", event)} />
+                <FlatButton style={{ backgroundColor: "black", color: "white" }} label="Completed" onClick={(event) => this.selectItems(props, "Com", event)} />
+                <FlatButton style={{ backgroundColor: "black", color: "white" }} label="Clear Completed" onClick={(event) => this.deleteCompleted(event)} />
+              </ToolbarGroup>
+            </Toolbar>
+          </MuiThemeProvider>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  CheckBox = (props) => {
+    var icon = props.todos.status === "true" ? <Done /> : <Active />;
+
+    return (
+      <MuiThemeProvider>
+        <FlatButton icon={icon} onClick={(event) => this.modifyItem(props, event)} />
+      </MuiThemeProvider>
+    );
+  }
+
+  selectItems = (props, act, event) => {
+    event.preventDefault();
+    this.setState({ event: act });
+  }
+
+  deleteCompleted = (event) => {
+    event.preventDefault();
+    var itemsRef = fire.database().ref('todos');
+    var todosTempState = this.state.todos;
+
+    for (var i = 0; i < this.state.todos.length; i++) {
+      if (this.state.todos[i].status === "true") {
+        itemsRef.child(this.state.todos[i].id).remove(function (error) {
+          if (error) {
+            console.log(error);
+          }
+        });
+      }
+    }
+
+    for (i = this.state.todos.length - 1; i >= 0; i--) {
+      if (this.state.todos[i].status === "true") {
+        todosTempState.splice(i, 1);
+      }
+    }
+
+    this.setState({ todos: todosTempState });
+  }
+
   markAll = (props, statusMark) => {
     var itemsRef = fire.database().ref('todos');
     var todosTempState = this.state.todos;
@@ -172,7 +209,6 @@ class ToDoReact extends Component {
       itemsRef.child(this.state.todos[i].id).update({
         status: statusMark.toString(),
         text: props.todos[i].text,
-        render: props.todos[i].render
       });
     }
 
@@ -181,7 +217,6 @@ class ToDoReact extends Component {
     }
 
     this.setState({ todos: todosTempState });
-    this.changeRenderDB(props, this.state.event.eventName);
   }
 
   login = (event) => {
@@ -196,32 +231,20 @@ class ToDoReact extends Component {
     this.setState({ todos: [] })
   }
 
-  CheckBox = (props) => {
-    var icon = props.todos.status === "true" ? <Done /> : <Active />;
-
-    return (
-      <MuiThemeProvider>
-        <FlatButton icon={icon} onClick={(event) => this.modifyItem(props, event)} />
-      </MuiThemeProvider>
-    );
-  }
-
   modifyItem = (props, event) => {
+    event.preventDefault();
     var itemsRef = fire.database().ref('todos');
     var status = props.todos.status === "false" ? "true" : 'false';
     var todosTempState = this.state.todos;
-    var renderStatus = this.state.event.eventName === "All" ? "true" : "false";
 
     itemsRef.child(props.todos.id).update({
       status: status,
       text: props.todos.text,
-      render: renderStatus
     });
 
     for (var i = 0; i < this.state.todos.length; i++) {
       if (this.state.todos[i].id === props.todos.id) {
         todosTempState[i].status = status;
-        todosTempState[i].render = renderStatus;
         todosTempState[i].text = props.todos.text;
         this.setState({ todos: todosTempState });
       }
@@ -237,7 +260,6 @@ class ToDoReact extends Component {
     itemsRef.child(props.id).update({
       status: props.status,
       text: textTemp,
-      render: props.render
     });
 
     for (var i = 0; i < this.state.todos.length; i++) {
@@ -246,80 +268,6 @@ class ToDoReact extends Component {
         this.setState({ todos: todosTempState, editingID: "", editTodo: "" });
       }
     }
-  }
-
-  changeRenderDB = (props, act) => {
-    var itemsRef = fire.database().ref('todos');
-    var itemsRef2 = fire.database().ref('event');
-    var todosTempState = this.state.todos;
-    let eventTempState;
-
-    switch (act) {
-      case "All":
-        for (var i = 0; i < this.state.todos.length; i++) {
-          itemsRef.child(this.state.todos[i].id).update({
-            status: props.todos[i].status,
-            text: props.todos[i].text,
-            render: "true"
-          });
-        }
-
-        eventTempState = {
-          eventName: "All",
-          id: this.state.event.id
-        };
-
-        for (i = 0; i < this.state.todos.length; i++) {
-          todosTempState[i].render = "true";
-          this.setState({ todos: todosTempState, event: eventTempState });
-        }
-
-        itemsRef2.child(this.state.event.id).update({
-          state: "All",
-        });
-        break;
-      case "Act":
-        this.rendersItem(props, "true", "false", "Act");
-
-        itemsRef2.child(this.state.event.id).update({
-          state: "Act",
-        });
-        break;
-      case "Com":
-        this.rendersItem(props, "false", "true", "Com");
-
-        itemsRef2.child(this.state.event.id).update({
-          state: "Com",
-        });
-        break;
-      default:
-        todosTempState = this.state.todos;
-
-        for (i = 0; i < this.state.todos.length; i++) {
-          if (this.state.todos[i].status === "true") {
-            itemsRef.child(this.state.todos[i].id).remove(function (error) {
-              if (error) {
-                console.log(error);
-              }
-            });
-          }
-        }
-
-        for (i = this.state.todos.length - 1; i >= 0; i--) {
-          if (this.state.todos[i].status === "true") {
-            todosTempState.splice(i, 1);
-          }
-        }
-
-        this.setState({ todos: todosTempState });
-        break;
-    }
-
-  }
-
-  selectItems = (props, act, event) => {
-    event.preventDefault();
-    this.changeRenderDB(props, act);
   }
 
   deleteItem = (itemId, event) => {
@@ -341,53 +289,12 @@ class ToDoReact extends Component {
     }
   }
 
-  rendersItem = (props, renderTrue, renderFalse, stat) => {
-    var itemsRef = fire.database().ref('todos');
-    var todosTempState = this.state.todos;
-
-    let statTempState = {
-      eventName: stat,
-      id: this.state.event.id
-    };
-
-    for (var i = 0; i < this.state.todos.length; i++) {
-      if (this.state.todos[i].status === "true") {
-        itemsRef.child(this.state.todos[i].id).update({
-          status: props.todos[i].status,
-          text: props.todos[i].text,
-          render: renderFalse
-        });
-      }
-      else if (this.state.todos[i].status === "false") {
-        itemsRef.child(this.state.todos[i].id).update({
-          status: props.todos[i].status,
-          text: props.todos[i].text,
-          render: renderTrue
-        });
-      }
-    }
-
-    for (i = 0; i < this.state.todos.length; i++) {
-      if (this.state.todos[i].status === "true") {
-        todosTempState[i].render = renderFalse;
-        this.setState({ todos: todosTempState, event: statTempState });
-      }
-      else if (this.state.todos[i].status === "false") {
-        todosTempState[i].render = renderTrue;
-        this.setState({ todos: todosTempState, event: statTempState });
-      }
-    }
-
-  }
-
   saveItem = (event) => {
     event.preventDefault();
-    var renderValue = this.state.event.eventName === "Com" ? "false" : 'true';
 
     fire.database().ref('todos').push({
       status: "false",
-      text: this.state.newTodo,
-      render: renderValue,
+      text: this.state.newTodo
     });
 
     this.setState({ newTodo: "" });
@@ -399,37 +306,21 @@ class ToDoReact extends Component {
         this.setState({ user: user })
 
         let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-        let messagesRef2 = fire.database().ref('event');
 
         messagesRef.on('child_added', snapshot => {
           var statusDB = Object.values(snapshot.child('status').val());
           var textDB = Object.values(snapshot.child('text').val());
-          var renderDB = Object.values(snapshot.child('render').val());
 
           var textStatus = statusDB.join().split(',').join('')
           var textText = textDB.join().split(',').join('')
-          var textRender = renderDB.join().split(',').join('')
 
           let todosTempState = {
             text: textText,
             status: textStatus,
-            render: textRender,
             id: snapshot.key
           };
 
           this.setState({ todos: [todosTempState].concat(this.state.todos) });
-        })
-
-        messagesRef2.on('child_added', snapshot => {
-          var statusDB = Object.values(snapshot.child('eventName').val());
-          var textStat = statusDB.join().split(',').join('')
-
-          let eventTempState = {
-            eventName: textStat,
-            id: snapshot.key
-          };
-
-          this.setState({ event: eventTempState });
         })
       }
       else {
