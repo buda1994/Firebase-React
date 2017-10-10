@@ -39,7 +39,7 @@ class ToDoReact extends Component {
 
   Header = () => {
     var icon = null
-    var title = "TODO List"
+    var title = "TODOs"
     var elementRight = <FlatButton label="Sign-In" onClick={(event) => this.login(event)} />;
 
     if (this.state.user) {
@@ -59,52 +59,6 @@ class ToDoReact extends Component {
       </MuiThemeProvider>
     );
   }
-
-  TodoList = (props) => {
-    if (this.state.user) {
-      return (
-        <div className="text-center">
-          {props.todos.map(todos => <this.TodoElement key={todos.id} {...todos} />)}
-        </div>
-      );
-    }
-
-    return null;
-  };
-
-  TodoElement = (props) => {
-    if (this.state.event === "All" || (this.state.event === "Act" && props.status === "false") || (this.state.event === "Com" && props.status === "true")) {
-      if (this.state.editingID === props.id) {
-        return (
-          <div>
-            <form onSubmit={(event) => this.editItem(props, event)} >
-              <MuiThemeProvider>
-                <TextField onChange={(event) => this.setState({ editTodo: event.target.value })} hintText={props.text} />
-              </MuiThemeProvider>
-            </form>
-          </div>
-        );
-      }
-
-      return (
-        <div >
-          <div style={{ display: 'inline-block', width: "25%" }}>
-            <this.CheckBox todos={props} />
-          </div>
-          <div style={{ display: 'inline-block', width: "50%" }}>
-            <p onDoubleClick={() => this.setState({ editingID: props.id })} > {props.text} </p>
-          </div>
-          <div style={{ display: 'inline-block', width: "25%" }}>
-            <MuiThemeProvider>
-              <FlatButton icon={<Delete />} onClick={(event) => this.deleteItem(props, event)} />
-            </MuiThemeProvider>
-          </div>
-        </div>
-      );
-    }
-
-    return null;
-  };
 
   CheckAll = (props) => {
     var count = 0;
@@ -160,14 +114,86 @@ class ToDoReact extends Component {
     return null;
   };
 
+  TodoList = (props) => {
+    if (this.state.user) {
+      return (
+        <div className="text-center">
+          {props.todos.map(todos => <this.TodoElement key={todos.id} {...todos} />)}
+        </div>
+      );
+    }
+
+    return null;
+  };
+
+  TodoElement = (props) => {
+    if (this.state.event === "All" || (this.state.event === "Act" && props.status === "false") || (this.state.event === "Com" && props.status === "true")) {
+      if (this.state.editingID === props.id) {
+        return (
+          <div>
+            <form onSubmit={(event) => this.modifyItem(props, "txtEdit", event)} >
+              <MuiThemeProvider>
+                <TextField onChange={(event) => this.setState({ editTodo: event.target.value })} hintText={props.text} />
+              </MuiThemeProvider>
+            </form>
+          </div>
+        );
+      }
+
+      return (
+        <div >
+          <div style={{ display: 'inline-block', width: "25%" }}>
+            <this.CheckBox todos={props} />
+          </div>
+          <div style={{ display: 'inline-block', width: "50%" }}>
+            <p onDoubleClick={() => this.setState({ editingID: props.id })} > {props.text} </p>
+          </div>
+          <div style={{ display: 'inline-block', width: "25%" }}>
+            <MuiThemeProvider>
+              <FlatButton icon={<Delete />} onClick={(event) => this.deleteItem(props, event)} />
+            </MuiThemeProvider>
+          </div>
+        </div>
+      );
+    }
+
+    return null;
+  };
+
   CheckBox = (props) => {
     var icon = props.todos.status === "true" ? <Done /> : <Active />;
 
     return (
       <MuiThemeProvider>
-        <FlatButton icon={icon} onClick={(event) => this.modifyItem(props, event)} />
+        <FlatButton icon={icon} onClick={(event) => this.modifyItem(props.todos, "chkBox", event)} />
       </MuiThemeProvider>
     );
+  }
+
+  modifyItem = (props, arc, event) => {
+    event.preventDefault();
+    var itemsRef = fire.database().ref('todos');
+    var todosTempState = this.state.todos;
+    var textinsert = props.text;
+    var statusinsert = props.status === "false" ? "true" : 'false';
+
+    if(arc === "txtEdit"){
+      textinsert = this.state.editTodo === "" ? props.text : this.state.editTodo;
+      statusinsert = props.status;
+    }
+
+    itemsRef.child(props.id).update({
+      status: statusinsert,
+      text: textinsert,
+    });
+
+    for (var i = 0; i < this.state.todos.length; i++) {
+      if (this.state.todos[i].id === props.id) {
+        todosTempState[i].status = statusinsert;
+        todosTempState[i].text = textinsert;
+        this.setState({ todos: todosTempState, editingID: "", editTodo: "" });
+      }
+    }
   }
 
   selectItems = (props, act, event) => {
@@ -229,45 +255,6 @@ class ToDoReact extends Component {
     this.setState({ todos: [] })
   }
 
-  modifyItem = (props, event) => {
-    event.preventDefault();
-    var itemsRef = fire.database().ref('todos');
-    var status = props.todos.status === "false" ? "true" : 'false';
-    var todosTempState = this.state.todos;
-
-    itemsRef.child(props.todos.id).update({
-      status: status,
-      text: props.todos.text,
-    });
-
-    for (var i = 0; i < this.state.todos.length; i++) {
-      if (this.state.todos[i].id === props.todos.id) {
-        todosTempState[i].status = status;
-        todosTempState[i].text = props.todos.text;
-        this.setState({ todos: todosTempState });
-      }
-    }
-  }
-
-  editItem = (props, event) => {
-    event.preventDefault();
-    var textTemp = this.state.editTodo === "" ? props.text : this.state.editTodo;
-    var itemsRef = fire.database().ref('todos');
-    var todosTempState = this.state.todos;
-
-    itemsRef.child(props.id).update({
-      status: props.status,
-      text: textTemp,
-    });
-
-    for (var i = 0; i < this.state.todos.length; i++) {
-      if (this.state.todos[i].id === props.id) {
-        todosTempState[i].text = textTemp;
-        this.setState({ todos: todosTempState, editingID: "", editTodo: "" });
-      }
-    }
-  }
-
   deleteItem = (itemId, event) => {
     event.preventDefault();
 
@@ -302,9 +289,8 @@ class ToDoReact extends Component {
     firebase.auth().onAuthStateChanged(user => {
       if (user) {
         this.setState({ user: user })
-
         let messagesRef = fire.database().ref('todos').orderByKey().limitToLast(100);
-
+        
         messagesRef.on('child_added', snapshot => {
           var statusDB = Object.values(snapshot.child('status').val());
           var textDB = Object.values(snapshot.child('text').val());
