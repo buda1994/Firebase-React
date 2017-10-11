@@ -170,14 +170,14 @@ class ToDoReact extends Component {
     );
   }
 
-  modifyItem = (props, arc, event) => {
+  modifyItem = (props, action, event) => {
     event.preventDefault();
     var itemsRef = fire.database().ref('todos');
     var todosTempState = this.state.todos;
     var textInsert = props.text;
     var statusInsert = props.status === "false" ? "true" : 'false';
 
-    if (arc === "txtEdit") {
+    if (action === "txtEdit") {
       textInsert = this.state.editTodo === "" ? props.text : this.state.editTodo;
       statusInsert = props.status;
     }
@@ -196,9 +196,9 @@ class ToDoReact extends Component {
     }
   }
 
-  selectItems = (props, act, event) => {
+  selectItems = (props, action, event) => {
     event.preventDefault();
-    this.setState({ event: act });
+    this.setState({ event: action });
   }
 
   markAll = (props, statusMark) => {
