@@ -23,22 +23,6 @@ class ToDoReact extends Component {
     user: ""
   }
 
-  AddBox = () => {
-    if (this.state.user) {
-      return (
-        <div style={{width:"50%", margin: 'auto'}}>
-        <MuiThemeProvider>
-          <form onSubmit={this.saveItem}>
-            <this.CheckAll style={{ width:"20%", margin: 'auto'}} todos={this.state.todos} />
-            <TextField style={{ width:"80%", margin: 'auto', marginBottom: "40px", marginTop: "30px" }} value={this.state.newTodo} onChange={(event) => this.setState({ newTodo: event.target.value })} hintText="What needs to be done?" />
-          </form>
-        </MuiThemeProvider>
-        </div>
-      );
-    }
-    return null;
-  }
-
   Header = () => {
     var icon = null
     var title = "TODOs"
@@ -51,15 +35,15 @@ class ToDoReact extends Component {
     }
 
     return (
-      <div style={{width:"50%", margin: 'auto'}}>
-      <MuiThemeProvider >
-        <AppBar
-          style={{ backgroundColor: "black" }}
-          iconElementLeft={icon}
-          title={title}
-          iconElementRight={elementRight}
-        />
-      </MuiThemeProvider>
+      <div style={{ width: "50%", margin: 'auto' }}>
+        <MuiThemeProvider >
+          <AppBar
+            style={{ backgroundColor: "black" }}
+            iconElementLeft={icon}
+            title={title}
+            iconElementRight={elementRight}
+          />
+        </MuiThemeProvider>
       </div>
     );
   }
@@ -86,6 +70,22 @@ class ToDoReact extends Component {
 
   };
 
+  AddBox = () => {
+    if (this.state.user) {
+      return (
+        <div style={{ width: "50%", margin: 'auto' }}>
+          <MuiThemeProvider>
+            <form onSubmit={this.saveItem}>
+              <this.CheckAll style={{ width: "20%", margin: 'auto' }} todos={this.state.todos} />
+              <TextField style={{ width: "80%", margin: 'auto', marginBottom: "40px", marginTop: "30px" }} value={this.state.newTodo} onChange={(event) => this.setState({ newTodo: event.target.value })} hintText="What needs to be done?" />
+            </form>
+          </MuiThemeProvider>
+        </div>
+      );
+    }
+    return null;
+  }
+
   BottomBar = (props) => {
     var count = 0;
 
@@ -97,17 +97,15 @@ class ToDoReact extends Component {
 
     if (props.todos.length !== 0) {
       return (
-        <div style={{ width:"50%", margin: 'auto', marginTop: '45px' }}>
+        <div style={{ width: "50%", margin: 'auto', marginTop: '45px' }}>
           <MuiThemeProvider>
             <Toolbar style={{ backgroundColor: "black" }}>
-              <ToolbarGroup>
-                <span style={{ width:"100%", margin: 'auto', color: "white" }}>{count} items left</span>
-              </ToolbarGroup>
-              <ToolbarGroup style={{ width:"80%", margin: 'auto'}} >
-                <FlatButton style={{ width:"25%", margin: 'auto', backgroundColor: "black", color: "white" }} label="All" onClick={(event) => this.selectItems(props, "All", event)} />
-                <FlatButton style={{ width:"25%", margin: 'auto', backgroundColor: "black", color: "white" }} label="Active" onClick={(event) => this.selectItems(props, "Act", event)} />
-                <FlatButton style={{ width:"25%", margin: 'auto', backgroundColor: "black", color: "white" }} label="Completed" onClick={(event) => this.selectItems(props, "Com", event)} />
-                <FlatButton style={{ width:"25%", margin: 'auto', backgroundColor: "black", color: "white" }} label="Clear Completed" onClick={(event) => this.deleteCompleted(event)} />
+              <ToolbarGroup style={{ width: "100%", margin: 'auto' }} >
+                <span style={{ width: "10%", margin: 'auto', color: "white" }}>{count} items left</span>
+                <FlatButton style={{ width: "22.5%", margin: 'auto', backgroundColor: "black", color: "white" }} label="All" onClick={(event) => this.selectItems(props, "All", event)} />
+                <FlatButton style={{ width: "22.5%", margin: 'auto', backgroundColor: "black", color: "white" }} label="Active" onClick={(event) => this.selectItems(props, "Act", event)} />
+                <FlatButton style={{ width: "22.5%", margin: 'auto', backgroundColor: "black", color: "white" }} label="Completed" onClick={(event) => this.selectItems(props, "Com", event)} />
+                <FlatButton style={{ width: "22.5%", margin: 'auto', backgroundColor: "black", color: "white" }} label="Clear Completed" onClick={(event) => this.deleteCompleted(event)} />
               </ToolbarGroup>
             </Toolbar>
           </MuiThemeProvider>
@@ -145,14 +143,14 @@ class ToDoReact extends Component {
       }
 
       return (
-        <div style={{ width:"50%", margin:"auto" }} >
-          <div style={{ display: 'inline-block', width: "25%" }}>
+        <div style={{ width: "50%", margin: "auto" }} >
+          <div style={{ display: 'inline-block', width: "30%" }}>
             <this.CheckBox todos={props} />
           </div>
-          <div style={{ display: 'inline-block', width: "50%" }}>
+          <div style={{ display: 'inline-block', width: "40%" }}>
             <p onDoubleClick={() => this.setState({ editingID: props.id })} > {props.text} </p>
           </div>
-          <div style={{ display: 'inline-block', width: "25%" }}>
+          <div style={{ display: 'inline-block', width: "30%" }}>
             <MuiThemeProvider>
               <FlatButton icon={<Delete />} onClick={(event) => this.deleteItem(props, event)} />
             </MuiThemeProvider>
